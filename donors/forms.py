@@ -35,3 +35,10 @@ class DonorRegistrationForm(forms.ModelForm):
             "address": "Address",
             "status": "Status",
         }
+class DonorUpdateForm(DonorRegistrationForm):
+    """
+    Form used by authorized Blood Bank Staff to update
+    an existing donor's editable information.
+    """
+
+    pass

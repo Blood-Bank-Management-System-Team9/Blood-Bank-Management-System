@@ -12,4 +12,14 @@ urlpatterns = [
         views.register_donor,
         name="register",
     ),
+    path(
+        "search/",
+        views.search_donor,
+        name="search",
+    ),
+    path(
+        "<str:donor_id>/update/",
+        views.update_donor,
+        name="update",
+    ),
 ]
