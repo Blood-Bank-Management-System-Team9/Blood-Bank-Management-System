@@ -17,9 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from donors import views as donor_views
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("donors/", include("donors.urls")),
     path("api/", include("donations.urls")),
+    path(
+        "api/donors/<str:donor_id>",
+        donor_views.donor_history,
+        name="donor-history",
+    ),
 ]
