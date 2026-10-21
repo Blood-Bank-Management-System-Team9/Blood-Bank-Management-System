@@ -1,13 +1,12 @@
-from django.test import TestCase
-
-# Create your tests here.
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
 from django.urls import reverse
 
 from .forms import DonorRegistrationForm
 from .models import Donor
-
+from datetime import timedelta
+from django.utils import timezone
+from donations.models import Donation
 
 class DonorRegistrationTests(TestCase):
     def setUp(self):
@@ -432,4 +431,92 @@ class DonorSearchUpdateTests(TestCase):
         self.assertEqual(
             self.donor.address,
             "Bengaluru",
+        )
+class DonorHistoryTests(TestCase):
+    def setUp(self):
+        blood_bank_staff_group = Group.objects.create(
+            name="Blood Bank Staff"
+        )
+
+        self.staff_user = User.objects.create_user(
+            username="history_staff",
+            password="testpass123",
+        )
+
+        self.staff_user.groups.add(
+            blood_bank_staff_group
+        )
+
+        self.donor = Donor.objects.create(
+            full_name="Ravi Kumar",
+            date_of_birth="1998-05-12",
+            blood_group="O+",
+            phone_number="9876543210",
+            status="",
+        )
+
+        self.other_donor = Donor.objects.create(
+            full_name="Anita Sharma",
+            date_of_birth="1995-08-20",
+            blood_group="A+",
+            phone_number="9123456789",
+            status="",
+        )
+
+        self.donation = Donation.objects.create(
+            donor=self.donor,
+            donation_date=timezone.localdate(),
+            quantity_units=1,
+            expiry_date=timezone.localdate() + timedelta(days=30),
+            donation_status=Donation.DonationStatus.ACCEPTED,
+        )
+
+        self.other_donation = Donation.objects.create(
+            donor=self.other_donor,
+            donation_date=timezone.localdate(),
+            quantity_units=1,
+            expiry_date=timezone.localdate() + timedelta(days=30),
+            donation_status=Donation.DonationStatus.PENDING,
+        )
+
+        self.history_url = reverse(
+            "donor-history",
+            kwargs={
+                "donor_id": self.donor.donor_id,
+            },
+        )
+
+    def test_staff_views_correct_donor_donation_history(self):
+        self.client.login(
+            username="history_staff",
+            password="testpass123",
+        )
+
+        response = self.client.get(
+            self.history_url
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        self.assertEqual(
+            response.context["donor"],
+            self.donor,
+        )
+
+        self.assertContains(
+            response,
+            self.donation.donation_id,
+        )
+
+        self.assertContains(
+            response,
+            "Ravi Kumar",
+        )
+
+        self.assertNotContains(
+            response,
+            self.other_donation.donation_id,
         )

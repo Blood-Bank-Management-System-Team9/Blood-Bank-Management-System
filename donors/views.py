@@ -84,6 +84,33 @@ def search_donor(request):
         },
     )
 
+@login_required
+def donor_history(request, donor_id):
+    """
+    View a donor's recorded donation history.
+
+    Only authenticated Blood Bank Staff may view donor history.
+    """
+    if not is_blood_bank_staff(request.user):
+        raise PermissionDenied(
+            "You are not authorized to view donor history."
+        )
+
+    donor = get_object_or_404(
+        Donor,
+        donor_id=donor_id,
+    )
+
+    donations = donor.donation_set.all()
+
+    return render(
+        request,
+        "donors/history.html",
+        {
+            "donor": donor,
+            "donations": donations,
+        },
+    )
 
 @login_required
 def update_donor(request, donor_id):
