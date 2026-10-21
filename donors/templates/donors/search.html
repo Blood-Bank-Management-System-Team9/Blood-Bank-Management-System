@@ -78,6 +78,41 @@
         .no-results {
             margin-top: 20px;
         }
+
+        .message {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .message.success {
+            background-color: #e8f5e9;
+        }
+
+        .message.error {
+            background-color: #ffebee;
+            color: #b00020;
+        }
+
+        .donation-form {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #dddddd;
+        }
+
+        .donation-form h3 {
+            margin-top: 0;
+        }
+
+        .donation-form input,
+        .donation-form select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-bottom: 12px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+        }
     </style>
 </head>
 
@@ -88,6 +123,13 @@
     <h1>Search Donor</h1>
 
     <p>Search for an existing donor using their phone number.</p>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <form method="get">
 
@@ -166,6 +208,80 @@
                         >
                             Update Donor
                         </a>
+                        <div class="donation-form">
+
+                            <h3>Record Donation</h3>
+
+                            <form
+                                method="post"
+                                action="{% url 'donations:record' %}"
+                                novalidate
+                            >
+
+                                {% csrf_token %}
+
+                                <input
+                                    type="hidden"
+                                    name="donor_id"
+                                    value="{{ donor.donor_id }}"
+                                >
+
+                                <label for="donation_date_{{ donor.donor_id }}">
+                                    Donation Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="donation_date_{{ donor.donor_id }}"
+                                    name="donation_date"
+                                    required
+                                >
+
+                                <label for="quantity_units_{{ donor.donor_id }}">
+                                    Quantity / Units
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="quantity_units_{{ donor.donor_id }}"
+                                    name="quantity_units"
+                                    min="1"
+                                    required
+                                >
+
+                                <label for="expiry_date_{{ donor.donor_id }}">
+                                    Expiry Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="expiry_date_{{ donor.donor_id }}"
+                                    name="expiry_date"
+                                    required
+                                >
+
+                                <label for="donation_status_{{ donor.donor_id }}">
+                                    Donation Status
+                                </label>
+
+                                <select
+                                    id="donation_status_{{ donor.donor_id }}"
+                                    name="donation_status"
+                                    required
+                                >
+                                    <option value="">Select status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Accepted">Accepted</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+
+                                <button type="submit">
+                                    Record Donation
+                                </button>
+
+                            </form>
+
+                        </div>
 
                     </div>
 
