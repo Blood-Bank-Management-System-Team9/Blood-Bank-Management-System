@@ -20,6 +20,7 @@ from django.urls import include, path
 from donors import views as donor_views
 
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("donors/", include("donors.urls")),
@@ -30,4 +31,5 @@ urlpatterns = [
         donor_views.donor_history,
         name="donor-history",
     ),
+    path("inventory/", include("inventory.urls")),
 ]

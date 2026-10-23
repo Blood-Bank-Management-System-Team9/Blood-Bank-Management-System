@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Inventory Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f5f6fa;
+            color: #222;
+        }
+
+        h1, h2 {
+            color: #a61b29;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-bottom: 25px;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #a61b29;
+            color: white;
+        }
+
+        .warning {
+            color: #b45309;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blood Inventory Dashboard</h1>
+
+    <h2>Available Stock by Blood Group</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Blood Group</th>
+                <th>Available Units</th>
+                <th>Stock Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group, units in inventory.items %}
+            <tr>
+                <td>{{ group }}</td>
+                <td>{{ units }}</td>
+                <td>
+                    {% if units < 5 %}
+                        <span class="warning">Low Stock</span>
+                    {% else %}
+                        Normal
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Near-Expiry Donations (Next 7 Days)</h2>
+    <table>
+        <tr>
+            <th>Donation ID</th>
+            <th>Blood Group</th>
+            <th>Quantity</th>
+            <th>Expiry Date</th>
+        </tr>
+        {% for donation in near_expiry_donations %}
+        <tr>
+            <td>{{ donation.donation_id }}</td>
+            <td>{{ donation.blood_group }}</td>
+            <td>{{ donation.quantity_units }}</td>
+            <td>{{ donation.expiry_date }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No near-expiry donations.</td></tr>
+        {% endfor %}
+    </table>
+
+    <h2>Expired Donations</h2>
+    <table>
+        <tr>
+            <th>Donation ID</th>
+            <th>Blood Group</th>
+            <th>Quantity</th>
+            <th>Expiry Date</th>
+        </tr>
+        {% for donation in expired_donations %}
+        <tr>
+            <td>{{ donation.donation_id }}</td>
+            <td>{{ donation.blood_group }}</td>
+            <td>{{ donation.quantity_units }}</td>
+            <td>{{ donation.expiry_date }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No expired donations.</td></tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
