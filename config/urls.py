@@ -22,6 +22,7 @@ from donors import views as donor_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("accounts/", include("accounts.urls")),
     path("donors/", include("donors.urls")),
     path("blood-search/", include("blood_search.urls")),
     path("api/", include("donations.urls")),
