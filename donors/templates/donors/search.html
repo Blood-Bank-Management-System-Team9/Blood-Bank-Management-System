@@ -113,6 +113,62 @@
             border: 1px solid #cccccc;
             border-radius: 4px;
         }
+        .donation-heading h3 {
+            margin-bottom: 5px;
+        }
+
+        .form-help {
+            margin-top: 0;
+            color: #555555;
+            font-size: 14px;
+        }
+
+        .selected-donor {
+            background-color: #f7f7f7;
+            border-left: 4px solid #333333;
+            padding: 12px 14px;
+            margin: 15px 0 5px;
+            border-radius: 4px;
+        }
+
+        .blood-group-note {
+            margin-top: 6px;
+            margin-bottom: 18px;
+            color: #666666;
+            font-size: 13px;
+        }
+
+        .required {
+            color: #b00020;
+        }
+
+        .donation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 18px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .donation-form .form-field input,
+        .donation-form .form-field select {
+            margin-bottom: 0;
+        }
+
+        .record-button {
+            margin-top: 20px;
+            padding: 11px 22px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .donation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -216,12 +272,33 @@
                         </a>
                         <div class="donation-form">
 
-                            <h3>Record Donation</h3>
+                            <div class="donation-heading">
+                                <div>
+                                    <h3>Record Donation</h3>
+                                    <p class="form-help">
+                                        Record a new donation for this donor.
+                                        Required fields are marked with *.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="selected-donor">
+                                <strong>Selected Donor:</strong>
+                                {{ donor.full_name }}
+                                ({{ donor.donor_id }})
+                                &nbsp;•&nbsp;
+                                <strong>Blood Group:</strong>
+                                {{ donor.blood_group }}
+                            </div>
+
+                            <p class="blood-group-note">
+                                Blood group will be automatically taken from the donor record.
+                            </p>
 
                             <form
                                 method="post"
                                 action="{% url 'donations:record' %}"
-                                novalidate
+                                class="record-donation-form"
                             >
 
                                 {% csrf_token %}
@@ -232,56 +309,83 @@
                                     value="{{ donor.donor_id }}"
                                 >
 
-                                <label for="donation_date_{{ donor.donor_id }}">
-                                    Donation Date
-                                </label>
+                                <div class="donation-grid">
+                        
+                                    <div class="form-field">
 
-                                <input
-                                    type="date"
-                                    id="donation_date_{{ donor.donor_id }}"
-                                    name="donation_date"
-                                    required
+                                        <label for="donation_date_{{ donor.donor_id }}">
+                                            Donation Date <span class="required">*</span>
+                                        </label>
+
+                                        <input
+                                            type="date"
+                                            id="donation_date_{{ donor.donor_id }}"
+                                            name="donation_date"
+                                            class="donation-date"
+                                            required
+                                        >
+
+                                    </div>
+
+                                    <div class="form-field">
+
+                                        <label for="quantity_units_{{ donor.donor_id }}">
+                                            Quantity / Units <span class="required">*</span>
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            id="quantity_units_{{ donor.donor_id }}"
+                                            name="quantity_units"
+                                            min="1"
+                                            step="1"
+                                            placeholder="e.g. 1"
+                                            required
+                                        >
+
+                                    </div>
+
+                                    <div class="form-field">
+
+                                        <label for="expiry_date_{{ donor.donor_id }}">
+                                            Expiry Date <span class="required">*</span>
+                                        </label>
+
+                                        <input
+                                            type="date"
+                                            id="expiry_date_{{ donor.donor_id }}"
+                                            name="expiry_date"
+                                            class="expiry-date"
+                                            required
+                                        >
+
+                                    </div>
+
+                                    <div class="form-field">
+
+                                        <label for="donation_status_{{ donor.donor_id }}">
+                                            Donation Status <span class="required">*</span>
+                                        </label>
+
+                                        <select
+                                            id="donation_status_{{ donor.donor_id }}"
+                                            name="donation_status"
+                                            required
+                                        >
+                                            <option value="">Select status</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Accepted">Accepted</option>
+                                            <option value="Rejected">Rejected</option>
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    class="record-button"
                                 >
-
-                                <label for="quantity_units_{{ donor.donor_id }}">
-                                    Quantity / Units
-                                </label>
-
-                                <input
-                                    type="number"
-                                    id="quantity_units_{{ donor.donor_id }}"
-                                    name="quantity_units"
-                                    min="1"
-                                    required
-                                >
-
-                                <label for="expiry_date_{{ donor.donor_id }}">
-                                    Expiry Date
-                                </label>
-
-                                <input
-                                    type="date"
-                                    id="expiry_date_{{ donor.donor_id }}"
-                                    name="expiry_date"
-                                    required
-                                >
-
-                                <label for="donation_status_{{ donor.donor_id }}">
-                                    Donation Status
-                                </label>
-
-                                <select
-                                    id="donation_status_{{ donor.donor_id }}"
-                                    name="donation_status"
-                                    required
-                                >
-                                    <option value="">Select status</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Accepted">Accepted</option>
-                                    <option value="Rejected">Rejected</option>
-                                </select>
-
-                                <button type="submit">
                                     Record Donation
                                 </button>
 
@@ -306,6 +410,47 @@
     {% endif %}
 
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
+    function getLocalDateString() {
+        const today = new Date();
+
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    const today = getLocalDateString();
+
+    document.querySelectorAll(".donation-date").forEach(function (dateInput) {
+
+        if (!dateInput.value) {
+            dateInput.value = today;
+        }
+
+        dateInput.max = today;
+
+        const form = dateInput.closest(".record-donation-form");
+        const expiryInput = form.querySelector(".expiry-date");
+
+        expiryInput.min = dateInput.value;
+
+        dateInput.addEventListener("change", function () {
+            expiryInput.min = dateInput.value;
+
+            if (
+                expiryInput.value &&
+                expiryInput.value < dateInput.value
+            ) {
+                expiryInput.value = "";
+            }
+        });
+    });
+
+});
+</script>
 </body>
 </html>
