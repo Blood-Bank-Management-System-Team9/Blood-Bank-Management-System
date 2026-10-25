@@ -7,134 +7,334 @@
     <title>Search Donor | BBMS</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
+        * {
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 44px 52px 60px;
+            background: #fbf6f7;
+            color: #302c2e;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ---------------- NAVIGATION ---------------- */
+
+        .top-nav {
+            margin: -44px -52px 42px;
+            padding: 0 52px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        .nav-brand {
+            color: #981b3f;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .nav-links a {
+            padding: 9px 11px;
+
+            color: #5f5659;
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #981b3f;
+            background: #fbeef2;
+        }
+
+        .nav-links a.active {
+            color: #981b3f;
+            background: #f8e8ed;
+        }
+
+        .logout-form {
+            margin: 0 0 0 5px;
+        }
+
+        .logout-form button {
+            border: 1px solid #d9b8c2;
+            border-radius: 5px;
+
+            background: white;
+            color: #981b3f;
+
+            padding: 8px 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .logout-form button:hover {
+            background: #981b3f;
+            color: white;
+        }
+
+
+        /* ---------------- MAIN CONTAINER ---------------- */
+
         .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1050px;
+            margin: 0 auto;
+
+            background: white;
+
+            padding: 34px 38px;
+
+            border: 1px solid #ead9de;
+            border-radius: 10px;
+
+            box-shadow: 0 3px 14px rgba(110, 25, 53, 0.06);
         }
 
         h1 {
-            margin-top: 0;
+            margin: 0 0 10px;
+
+            color: #2f292b;
+            font-size: 31px;
+            font-weight: 700;
         }
 
+        h1::after {
+            content: "";
+            display: block;
+
+            width: 50px;
+            height: 4px;
+
+            margin-top: 12px;
+
+            background: #981b3f;
+            border-radius: 4px;
+        }
+
+        h2 {
+            color: #7d1835;
+            font-size: 21px;
+            margin-top: 28px;
+        }
+
+        h3 {
+            color: #7d1835;
+            font-size: 18px;
+        }
+
+        p {
+            color: #625b5e;
+        }
+
+
+        /* ---------------- SEARCH FORM ---------------- */
+
         .form-group {
+            margin-top: 24px;
             margin-bottom: 18px;
         }
 
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 6px;
+
+            color: #302c2e;
+            font-size: 14px;
+            font-weight: 700;
+
+            margin-bottom: 7px;
+        }   
+
+        input,
+        select {
+            width: 100%;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d8cfd2;
+            border-radius: 5px;
+
+            background: white;
+
+            font-size: 14px;
         }
 
-        input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
+        input:focus,
+        select:focus {
+            outline: none;
+
+            border-color: #981b3f;
+
+            box-shadow:
+                0 0 0 2px rgba(152, 27, 63, 0.08);
         }
 
         button {
-            padding: 10px 18px;
+            padding: 10px 20px;
+
+                border: none;
+            border-radius: 5px;
+
+            background: #981b3f;
+            color: white;
+
+            font-size: 14px;
+            font-weight: 600;
+
             cursor: pointer;
         }
 
+        button:hover {
+            background: #801632;
+        }
+
+
+        /* ---------------- MESSAGES ---------------- */
+
+        .message {
+            padding: 12px 14px;
+            margin-bottom: 15px;
+
+            border-radius: 5px;
+
+            font-size: 14px;
+        }
+
+        .message.success {
+            color: #366551;
+            background: #edf7f2;
+            border: 1px solid #c9e6d8;
+        }
+
+        .message.error {
+            color: #a4283a;
+            background: #fff0f2;
+            border: 1px solid #f0c7ce;
+        }
+
+
+        /* ---------------- SEARCH RESULTS ---------------- */
+
         .results {
-            margin-top: 30px;
+            margin-top: 34px;
+            padding-top: 5px;
         }
 
         .donor-card {
-            border: 1px solid #dddddd;
-            border-radius: 6px;
-            padding: 18px;
-            margin-bottom: 15px;
+            margin-bottom: 22px;
+            padding: 23px;
+
+            background: #fffafb;
+
+            border: 1px solid #ead9de;
+            border-left: 4px solid #981b3f;
+
+            border-radius: 8px;
         }
 
         .donor-card p {
-            margin: 8px 0;
+            margin: 7px 0;
+            color: #514a4d;
+        }
+
+        .donor-card strong {
+            color: #302c2e;
         }
 
         .update-link {
             display: inline-block;
-            margin-top: 10px;
-            padding: 8px 14px;
-            border: 1px solid #333333;
-            border-radius: 4px;
-            color: #000000;
+
+            margin-top: 13px;
+            margin-right: 7px;
+
+            padding: 8px 13px;
+            
+            border: 1px solid #d5aeba;
+            border-radius: 5px;
+
+            color: #981b3f;
+            background: white;
+
+            font-size: 13px;
+            font-weight: 600;
+
             text-decoration: none;
+        }
+
+        .update-link:hover {
+            background: #f8e8ed;
         }
 
         .no-results {
             margin-top: 20px;
+
+            padding: 15px;
+
+            background: #fff4f4;
+            border: 1px solid #efd7db;
+
+            border-radius: 5px;
+
+            color: #7b414a;
         }
 
-        .message {
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
 
-        .message.success {
-            background-color: #e8f5e9;
-        }
-
-        .message.error {
-            background-color: #ffebee;
-            color: #b00020;
-        }
+        /* ---------------- DONATION FORM ---------------- */
 
         .donation-form {
-            margin-top: 20px;
-            padding-top: 18px;
-            border-top: 1px solid #dddddd;
+            margin-top: 25px;
+            padding-top: 22px;
+
+            border-top: 1px solid #ead9de;
         }
 
-        .donation-form h3 {
-            margin-top: 0;
-        }
-
-        .donation-form input,
-        .donation-form select {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            margin-bottom: 12px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
-        }
         .donation-heading h3 {
-            margin-bottom: 5px;
+            margin: 0 0 5px;
         }
 
         .form-help {
             margin-top: 0;
-            color: #555555;
-            font-size: 14px;
+
+            color: #777174;
+            font-size: 13px;
         }
 
         .selected-donor {
-            background-color: #f7f7f7;
-            border-left: 4px solid #333333;
-            padding: 12px 14px;
-            margin: 15px 0 5px;
-            border-radius: 4px;
+            margin: 15px 0 6px;
+            padding: 13px 15px;
+
+            background: #f8e8ed;
+
+            border-left: 4px solid #981b3f;
+            border-radius: 5px;
+
+            color: #4d3c42;
         }
 
         .blood-group-note {
-            margin-top: 6px;
-            margin-bottom: 18px;
-            color: #666666;
+            margin-top: 7px;
+            margin-bottom: 20px;
+
+            color: #777174;
             font-size: 13px;
         }
 
@@ -144,13 +344,16 @@
 
         .donation-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px 18px;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 16px 20px;
         }
 
         .form-field label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
         }
 
         .donation-form .form-field input,
@@ -159,12 +362,45 @@
         }
 
         .record-button {
-            margin-top: 20px;
+            margin-top: 22px;
+
             padding: 11px 22px;
-            font-weight: bold;
+
+            background: #981b3f;
+
+            font-weight: 700;
         }
 
-        @media (max-width: 600px) {
+
+        /* ---------------- RESPONSIVE ---------------- */
+
+        @media (max-width: 900px) {
+
+            body {
+                padding: 28px 18px 40px;
+            }
+
+            .top-nav {
+                margin: -28px -18px 30px;
+
+                padding: 14px 18px;
+
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .container {
+                padding: 26px 22px;
+            }
+        }
+
+        @media (max-width: 650px) {
+
             .donation-grid {
                 grid-template-columns: 1fr;
             }
@@ -173,7 +409,45 @@
 </head>
 
 <body>
+    <nav class="top-nav">
 
+        <div class="nav-brand">
+            BBMS
+        </div>
+
+        <div class="nav-links">
+
+            <a href="{% url 'donors:register' %}">
+                Register Donor
+            </a>
+
+            <a href="{% url 'donors:search' %}" class="active">
+                Search Donors
+            </a>
+
+            <a href="{% url 'inventory:dashboard' %}">
+                Inventory
+            </a>
+
+            <a href="{% url 'blood_search:availability' %}">
+                Blood Search
+            </a>
+
+            <form method="post"
+                  action="{% url 'accounts:logout' %}"
+                class="logout-form">
+
+                {% csrf_token %}
+
+                <button type="submit">
+                    Logout
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
 <div class="container">
 
     <h1>Search Donor</h1>
@@ -286,7 +560,7 @@
                                 <strong>Selected Donor:</strong>
                                 {{ donor.full_name }}
                                 ({{ donor.donor_id }})
-                                &nbsp;•&nbsp;
+                                &nbsp;&nbsp;
                                 <strong>Blood Group:</strong>
                                 {{ donor.blood_group }}
                             </div>

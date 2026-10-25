@@ -2,20 +2,334 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Blood Bank Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #2f2b2d;
+            background: #f8f7f6;
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 45% 55%;
+        }
+
+        .brand-panel {
+            background: #f8eaf0;
+            padding: 50px 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .drop-icon {
+            width: 25px;
+            height: 25px;
+            color: #8b1e3f;
+        }
+
+        .brand-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: #777174;
+            margin-top: 2px;
+        }
+
+        .brand-message {
+            max-width: 440px;
+            margin-bottom: 100px;
+        }
+
+        .visual {
+            width: 150px;
+            height: 150px;
+            border: 1px solid #e2b9c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 35px;
+        }
+
+        .visual-inner {
+            width: 76px;
+            height: 100px;
+            border: 1px solid #e2b9c7;
+            border-radius: 18px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-message h1 {
+            font-size: 38px;
+            margin: 0 0 20px;
+        }
+
+        .brand-message p {
+            color: #777174;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .brand-footer {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #777174;
+        }
+
+        .brand-footer strong {
+            color: #5f5559;
+            font-weight: 700;
+        }
+
+        .login-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border: 1px solid #dedbdc;
+            border-radius: 10px;
+            padding: 34px;
+        }
+
+        .eyebrow {
+            color: #8b1e3f;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .login-card h2 {
+            font-size: 28px;
+            line-height: 1.3;
+            margin: 0 0 10px;
+        }
+
+        .login-description {
+            color: #777174;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .field input {
+            width: 100%;
+            height: 44px;
+            padding: 10px 12px;
+            border: 1px solid #d8d4d5;
+            border-radius: 5px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: #8b1e3f;
+            box-shadow: 0 0 0 2px rgba(139, 30, 63, 0.08);
+        }
+
+        .login-button {
+            width: 100%;
+            height: 44px;
+            border: 0;
+            border-radius: 5px;
+            background: #8b1e3f;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-button:hover {
+            background: #741832;
+        }
+
+        .error-message {
+            background: #fff0f2;
+            color: #a62335;
+            border: 1px solid #f1c8cf;
+            padding: 12px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .security-note {
+            display: flex;
+            gap: 9px;
+            align-items: flex-start;
+            margin-top: 20px;
+            color: #777174;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 850px) {
+            .login-page {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                display: none;
+            }
+
+            .login-panel {
+                min-height: 100vh;
+                padding: 24px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Login</h1>
 
-    {% if form.errors %}
-        <p>Your username and password didn't match. Please try again.</p>
-    {% endif %}
+<div class="login-page">
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
-        <input type="hidden" name="next" value="{{ next }}">
-    </form>
+    <section class="brand-panel">
+
+        <div class="brand-logo">
+            <svg class="drop-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.7">
+                <path d="M12 2.8S6.4 9.1 6.4 14a5.6 5.6 0 0 0 11.2 0C17.6 9.1 12 2.8 12 2.8Z"/>
+            </svg>
+
+            <div>
+                <div class="brand-title">BBMS</div>
+                <div class="brand-subtitle">Blood Bank Management System</div>
+            </div>
+        </div>
+
+        <div class="brand-message">
+
+            <div class="visual">
+                <div class="visual-inner">
+                    <svg class="drop-icon" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.7">
+                        <path d="M12 2.8S6.4 9.1 6.4 14a5.6 5.6 0 0 0 11.2 0C17.6 9.1 12 2.8 12 2.8Z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <h1>Every unit matters.</h1>
+
+            <p>
+                A clear view of donors, blood inventory and requests.
+                One focused workspace for blood bank operations.
+            </p>
+        </div>
+
+        <div class="brand-footer">
+            <strong>Team 9 · Blood Bank Management System</strong><br>
+            Prakruti Prasanna Bhat · Pallavi Rajkumar Bubanale · Purav N Khincha · Ramith Munnan Ravindranath<br>
+            PES University · Department of Computer Science and Engineering
+        </div>
+
+    </section>
+
+
+    <main class="login-panel">
+
+        <div class="login-card">
+
+            <div class="eyebrow">Welcome to BBMS</div>
+
+            <h2>Blood Bank Management System</h2>
+
+            <p class="login-description">
+                Secure access for authorised personnel
+            </p>
+
+
+            {% if form.errors %}
+                <div class="error-message">
+                    Your username and password didn't match. Please try again.
+                </div>
+            {% endif %}
+
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                </div>
+
+                <button class="login-button" type="submit">
+                    Sign In
+                </button>
+
+                <input type="hidden" name="next" value="{{ next }}">
+
+            </form>
+
+
+            <div class="security-note">
+
+                <svg width="17" height="17" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+                    <path d="m9 12 2 2 4-4"/>
+                </svg>
+
+                <span>
+                    Access is restricted according to your assigned role.
+                </span>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
 </body>
 </html>

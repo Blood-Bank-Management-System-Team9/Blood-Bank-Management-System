@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import include, path
 
 from donors import views as donor_views
-
+from inventory import views as inventory_views
 
 
 urlpatterns = [
+    path("", inventory_views.inventory_dashboard, name="home"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("donors/", include("donors.urls")),
