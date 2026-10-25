@@ -7,25 +7,138 @@
     <title>Blood Availability Search | BBMS</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
+        * {
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0 52px 60px;
+            background: #fbf6f7;
+            color: #302c2e;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ---------------- NAVIGATION ---------------- */
+
+        .top-nav {
+            margin: 0 -52px 42px;
+            padding: 0 52px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        .nav-brand {
+            color: #981b3f;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .nav-links a {
+            padding: 9px 11px;
+
+            color: #5f5659;
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #981b3f;
+            background: #fbeef2;
+        }
+
+        .nav-links a.active {
+            color: #981b3f;
+            background: #f8e8ed;
+        }
+
+        .logout-form {
+            margin: 0 0 0 5px;
+        }
+
+        .logout-form button {
+            border: 1px solid #d9b8c2;
+            border-radius: 5px;
+
+            background: white;
+            color: #981b3f;
+
+            padding: 8px 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+        .logout-form button:hover {
+            background: #981b3f;
+            color: white;
+        }
+
+        /* ---------------- PAGE ---------------- */
+
         .container {
-            max-width: 800px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1050px;
+            margin: 0 auto;
+
+            background: white;
+
+            padding: 36px 40px;
+
+            border: 1px solid #ead9de;
+            border-radius: 10px;
+
+            box-shadow: 0 3px 14px rgba(110, 25, 53, 0.06);
         }
 
         h1 {
-            margin-top: 0;
+            margin: 0 0 10px;
+
+            color: #2f292b;
+            font-size: 31px;
+            font-weight: 700;
         }
+
+        h1::after {
+            content: "";
+            display: block;
+
+            width: 50px;
+            height: 4px;
+
+            margin-top: 12px;
+
+            background: #981b3f;
+            border-radius: 4px;
+        }
+
+        .page-description {
+            margin: 22px 0 28px;
+
+            color: #625b5e;
+            font-size: 15px;
+        }
+
+        /* ---------------- SEARCH FORM ---------------- */
 
         .form-group {
             margin-bottom: 18px;
@@ -33,86 +146,246 @@
 
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 6px;
+
+            color: #302c2e;
+            font-size: 14px;
+            font-weight: 700;
+
+            margin-bottom: 7px;
         }
 
         select {
             width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d8cfd2;
+            border-radius: 5px;
+
+            background: white;
+            color: #302c2e;
+
+            font-size: 14px;
         }
 
-        button {
-            padding: 10px 18px;
+        select:focus {
+            outline: none;
+
+            border-color: #981b3f;
+
+            box-shadow:
+                0 0 0 2px rgba(152, 27, 63, 0.08);
+        }
+
+        .search-button {
+            padding: 11px 22px;
+
+            border: none;
+            border-radius: 5px;
+
+            background: #981b3f;
+            color: white;
+
+            font-size: 14px;
+            font-weight: 700;
+
             cursor: pointer;
         }
 
+        .search-button:hover {
+            background: #801632;
+        }
+
+        /* ---------------- RESULT ---------------- */
+
         .result {
             margin-top: 30px;
-            border: 1px solid #dddddd;
-            border-radius: 6px;
-            padding: 18px;
+
+            padding: 22px 24px;
+
+            border-radius: 8px;
         }
 
         .result p {
             margin: 8px 0;
         }
 
+        .result strong {
+            color: #302c2e;
+        }
+
         .result.available {
-            background-color: #e8f5e9;
+            background: #edf7f2;
+
+            border: 1px solid #c9e6d8;
+            border-left: 4px solid #4f806b;
         }
 
         .result.unavailable {
-            background-color: #ffebee;
-        }
+            background: #fff0f2;
 
-        .status-unavailable {
-            color: #b00020;
-            font-weight: bold;
+            border: 1px solid #f0c7ce;
+            border-left: 4px solid #b53145;
         }
 
         .status-available {
-            color: #1b5e20;
-            font-weight: bold;
+            display: inline-block;
+
+            margin-top: 7px;
+
+            color: #35634f;
+            background: #dcefe5;
+
+            padding: 4px 9px;
+
+            border-radius: 5px;
+
+            font-size: 12px;
+            font-weight: 700;
         }
 
+        .status-unavailable {
+            display: inline-block;
+
+            margin-top: 7px;
+
+            color: #a4283a;
+            background: #f8dfe3;
+
+            padding: 4px 9px;
+
+            border-radius: 5px;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* ---------------- MESSAGES ---------------- */
+
         .message {
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 4px;
+            padding: 12px 14px;
+
+            margin-bottom: 18px;
+
+            border-radius: 5px;
+
+            font-size: 14px;
         }
 
         .message.error {
-            background-color: #ffebee;
-            color: #b00020;
+            background: #fff0f2;
+            color: #a4283a;
+            border: 1px solid #f0c7ce;
         }
 
+        /* ---------------- NOTE ---------------- */
+
         .note {
-            margin-top: 20px;
-            color: #666666;
-            font-size: 14px;
+            margin-top: 18px;
+
+            padding: 11px 13px;
+
+            color: #6d6266;
+            background: #fffafb;
+
+            border-left: 3px solid #981b3f;
+            border-radius: 4px;
+
+            font-size: 13px;
+        }
+
+        /* ---------------- RESPONSIVE ---------------- */
+
+        @media (max-width: 900px) {
+
+            body {
+                padding: 0 18px 40px;
+            }
+
+            .top-nav {
+                margin: 0 -18px 30px;
+                padding: 14px 18px;
+
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .container {
+                padding: 27px 23px;
+            }
         }
     </style>
 </head>
 
 <body>
 
+<nav class="top-nav">
+
+    <div class="nav-brand">
+        BBMS
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{% url 'donors:register' %}">
+            Register Donor
+        </a>
+
+        <a href="{% url 'donors:search' %}">
+            Search Donors
+        </a>
+
+        <a href="{% url 'inventory:dashboard' %}">
+            Inventory
+        </a>
+
+        <a href="{% url 'blood_search:availability' %}" class="active">
+            Blood Search
+        </a>
+
+        <form method="post"
+              action="{% url 'accounts:logout' %}"
+              class="logout-form">
+
+            {% csrf_token %}
+
+            <button type="submit">
+                Logout
+            </button>
+
+        </form>
+
+    </div>
+
+</nav>
+
+
 <div class="container">
 
     <h1>Blood Availability Search</h1>
 
-    <p>Select a blood group to see how many units are currently available.</p>
+    <p class="page-description">
+        Select a blood group to see how many units are currently available.
+    </p>
+
 
     {% if messages %}
+
         {% for message in messages %}
+
             <div class="message {{ message.tags }}">
                 {{ message }}
             </div>
+
         {% endfor %}
+
     {% endif %}
+
 
     <form method="get">
 
@@ -122,39 +395,86 @@
                 Blood Group
             </label>
 
-            <select id="blood_group" name="blood_group" required>
-                <option value="">-- Select blood group --</option>
+            <select id="blood_group"
+                    name="blood_group"
+                    required>
+
+                <option value="">
+                    -- Select blood group --
+                </option>
+
                 {% for group in blood_groups %}
-                    <option value="{{ group }}" {% if group == selected_blood_group %}selected{% endif %}>
+
+                    <option value="{{ group }}"
+                            {% if group == selected_blood_group %}selected{% endif %}>
+
                         {{ group }}
+
                     </option>
+
                 {% endfor %}
+
             </select>
 
         </div>
 
-        <button type="submit">Search</button>
+
+        <button type="submit" class="search-button">
+            Search
+        </button>
 
     </form>
 
+
     {% if result %}
+
         {% if result.is_available %}
+
             <div class="result available">
-                <p><strong>Blood Group:</strong> {{ result.blood_group }}</p>
-                <p><strong>Available Units:</strong> {{ result.available_units }}</p>
-                <p class="status-available">Available</p>
+
+                <p>
+                    <strong>Blood Group:</strong>
+                    {{ result.blood_group }}
+                </p>
+
+                <p>
+                    <strong>Available Units:</strong>
+                    {{ result.available_units }}
+                </p>
+
+                <p class="status-available">
+                    Available
+                </p>
+
             </div>
+
         {% else %}
+
             <div class="result unavailable">
-                <p><strong>Blood Group:</strong> {{ result.blood_group }}</p>
-                <p><strong>Available Units:</strong> 0</p>
+
+                <p>
+                    <strong>Blood Group:</strong>
+                    {{ result.blood_group }}
+                </p>
+
+                <p>
+                    <strong>Available Units:</strong>
+                    0
+                </p>
+
                 <p class="status-unavailable">
                     {{ result.blood_group }} is currently unavailable.
                 </p>
+
             </div>
+
         {% endif %}
 
-        <p class="note">Expired units are not included in the available quantity.</p>
+
+        <p class="note">
+            Expired units are not included in the available quantity.
+        </p>
+
     {% endif %}
 
 </div>

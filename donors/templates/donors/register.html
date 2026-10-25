@@ -7,124 +7,381 @@
     <title>Register Donor | BBMS</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
+        * {
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0 52px 60px;
+            background: #fbf6f7;
+            color: #302c2e;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ---------------- NAVIGATION ---------------- */
+
+        .top-nav {
+            margin: 0 -52px 42px;
+            padding: 0 52px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        .nav-brand {
+            color: #981b3f;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .nav-links a {
+            padding: 9px 11px;
+
+            color: #5f5659;
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #981b3f;
+            background: #fbeef2;
+        }
+
+        .nav-links a.active {
+            color: #981b3f;
+            background: #f8e8ed;
+        }
+
+        .logout-form {
+            margin: 0 0 0 5px;
+        }
+
+        .logout-form button {
+            border: 1px solid #d9b8c2;
+            border-radius: 5px;
+
+            background: white;
+            color: #981b3f;
+
+            padding: 8px 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+        .logout-form button:hover {
+            background: #981b3f;
+            color: white;
+        }
+
+        /* ---------------- PAGE CARD ---------------- */
+
         .container {
-            max-width: 700px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1050px;
+            margin: 0 auto;
+
+            background: white;
+
+            padding: 36px 40px;
+
+            border: 1px solid #ead9de;
+            border-radius: 10px;
+
+            box-shadow: 0 3px 14px rgba(110, 25, 53, 0.06);
         }
 
         h1 {
-            margin-top: 0;
+            margin: 0 0 10px;
+
+            color: #2f292b;
+            font-size: 31px;
+            font-weight: 700;
         }
 
+        h1::after {
+            content: "";
+            display: block;
+
+            width: 50px;
+            height: 4px;
+
+            margin-top: 12px;
+
+            background: #981b3f;
+            border-radius: 4px;
+        }
+
+        .page-description {
+            margin: 22px 0 28px;
+
+            color: #625b5e;
+            font-size: 15px;
+        }
+
+        /* ---------------- FORM ---------------- */
+
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            font-weight: bold;
-            margin-bottom: 6px;
+
+            color: #302c2e;
+            font-size: 14px;
+            font-weight: 700;
+
+            margin-bottom: 7px;
         }
 
         input,
         select,
         textarea {
             width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
+
+            padding: 11px 12px;
+
+            border: 1px solid #d8cfd2;
+            border-radius: 5px;
+
+            background: #ffffff;
+            color: #302c2e;
+
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+
+            border-color: #981b3f;
+
+            box-shadow:
+                0 0 0 2px rgba(152, 27, 63, 0.08);
+        }
+
+        textarea {
+            min-height: 95px;
+            resize: vertical;
         }
 
         .required {
             color: #b00020;
         }
 
+        /* ---------------- ERRORS / MESSAGES ---------------- */
+
         .error {
-            color: #b00020;
-            margin-top: 5px;
+            margin-top: 6px;
+
+            color: #a4283a;
+            font-size: 13px;
         }
 
         .message {
-            padding: 12px;
+            padding: 13px 15px;
             margin-bottom: 20px;
-            border-radius: 4px;
-            background-color: #e8f5e9;
+
+            border-radius: 5px;
+
+            color: #366551;
+            background: #edf7f2;
+            border: 1px solid #c9e6d8;
+
+            font-size: 14px;
         }
 
-        button {
-            padding: 10px 18px;
+        /* ---------------- BUTTON ---------------- */
+
+        .save-button {
+            margin-top: 5px;
+
+            padding: 11px 22px;
+
+            border: none;
+            border-radius: 5px;
+
+            background: #981b3f;
+            color: white;
+
+            font-size: 14px;
+            font-weight: 700;
+
             cursor: pointer;
+        }
+
+        .save-button:hover {
+            background: #801632;
+        }
+
+        /* ---------------- RESPONSIVE ---------------- */
+
+        @media (max-width: 900px) {
+
+            body {
+                padding: 0 18px 40px;
+            }
+
+            .top-nav {
+                margin: 0 -18px 30px;
+                padding: 14px 18px;
+
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .container {
+                padding: 27px 23px;
+            }
         }
     </style>
 </head>
 
 <body>
 
+<nav class="top-nav">
+
+    <div class="nav-brand">
+        BBMS
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{% url 'donors:register' %}" class="active">
+            Register Donor
+        </a>
+
+        <a href="{% url 'donors:search' %}">
+            Search Donors
+        </a>
+
+        <a href="{% url 'inventory:dashboard' %}">
+            Inventory
+        </a>
+
+        <a href="{% url 'blood_search:availability' %}">
+            Blood Search
+        </a>
+
+        <form method="post"
+              action="{% url 'accounts:logout' %}"
+              class="logout-form">
+
+            {% csrf_token %}
+
+            <button type="submit">
+                Logout
+            </button>
+
+        </form>
+
+    </div>
+
+</nav>
+
+
 <div class="container">
 
     <h1>Register Donor</h1>
 
-    <p>Enter the donor information below.</p>
+    <p class="page-description">
+        Enter the donor information below.
+    </p>
+
 
     {% if messages %}
+
         {% for message in messages %}
+
             <div class="message">
                 {{ message }}
             </div>
+
         {% endfor %}
+
     {% endif %}
 
+
     {% if form.non_field_errors %}
+
         {% for error in form.non_field_errors %}
+
             <div class="error">
                 {{ error }}
             </div>
+
         {% endfor %}
+
     {% endif %}
+
 
     <form method="post" novalidate>
 
         {% csrf_token %}
+
 
         {% for field in form %}
 
             <div class="form-group">
 
                 <label for="{{ field.id_for_label }}">
+
                     {{ field.label }}
 
                     {% if field.field.required %}
                         <span class="required">*</span>
                     {% endif %}
+
                 </label>
+
 
                 {{ field }}
 
+
                 {% if field.errors %}
+
                     {% for error in field.errors %}
+
                         <div class="error">
                             {{ error }}
                         </div>
+
                     {% endfor %}
+
                 {% endif %}
 
             </div>
 
         {% endfor %}
 
-        <button type="submit">
+
+        <button type="submit" class="save-button">
             Save Donor
         </button>
 

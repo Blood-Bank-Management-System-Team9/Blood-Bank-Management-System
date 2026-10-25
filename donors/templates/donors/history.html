@@ -7,61 +7,312 @@
     <title>Donation History | BBMS</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
+        * {
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0 52px 60px;
+            background: #fbf6f7;
+            color: #302c2e;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* NAVIGATION */
+
+        .top-nav {
+            margin: 0 -52px 42px;
+            padding: 0 52px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        .nav-brand {
+            color: #981b3f;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .nav-links a {
+            padding: 9px 11px;
+            color: #5f5659;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #981b3f;
+            background: #fbeef2;
+        }
+
+        .nav-links a.active {
+            color: #981b3f;
+            background: #f8e8ed;
+        }
+
+        .logout-form {
+            margin: 0 0 0 5px;
+        }
+
+        .logout-form button {
+            border: 1px solid #d9b8c2;
+            border-radius: 5px;
+            background: white;
+            color: #981b3f;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .logout-form button:hover {
+            background: #981b3f;
+            color: white;
+        }
+
+        /* PAGE */
 
         .container {
-            max-width: 900px;
-            margin: 40px auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 1050px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 36px 40px;
+            border: 1px solid #ead9de;
+            border-radius: 10px;
+            box-shadow: 0 3px 14px rgba(110, 25, 53, 0.06);
         }
 
+        h1 {
+            margin: 0 0 10px;
+            color: #2f292b;
+            font-size: 31px;
+            font-weight: 700;
+        }
+
+        h1::after {
+            content: "";
+            display: block;
+            width: 50px;
+            height: 4px;
+            margin-top: 12px;
+            background: #981b3f;
+            border-radius: 4px;
+        }
+
+        /* DONOR INFO */
+
         .donor-info {
-            margin-bottom: 25px;
-            padding: 18px;
-            border: 1px solid #dddddd;
-            border-radius: 6px;
+            margin: 26px 0 30px;
+            padding: 20px 22px;
+
+            background: #fffafb;
+
+            border: 1px solid #ead9de;
+            border-left: 4px solid #981b3f;
+            border-radius: 8px;
         }
 
         .donor-info p {
             margin: 8px 0;
+            color: #514a4d;
         }
+
+        .donor-info strong {
+            color: #302c2e;
+        }
+
+        /* TABLE */
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
+
             margin-top: 20px;
+
+            background: white;
+
+            border: 1px solid #ead9de;
+            border-radius: 8px;
+
+            overflow: hidden;
+
+            box-shadow: 0 2px 8px rgba(110, 25, 53, 0.04);
         }
 
         th,
         td {
-            padding: 10px;
-            border: 1px solid #dddddd;
+            padding: 14px 16px;
             text-align: left;
         }
 
         th {
-            background-color: #f0f0f0;
+            background: #8f1d3e;
+            color: white;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+            letter-spacing: 0.35px;
         }
 
+        td {
+            color: #403a3c;
+            font-size: 14px;
+            border-bottom: 1px solid #f0e6e9;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fffafb;
+        }
+
+        tbody tr:hover {
+            background: #fceff3;
+        }
+
+        td:nth-child(3) {
+            color: #981b3f;
+            font-weight: 700;
+        }
+
+        /* EMPTY STATE */
+
         .no-history {
-            margin-top: 20px;
+            margin-top: 25px;
+
+            padding: 16px;
+
+            background: #fffafb;
+
+            border: 1px solid #ead9de;
+            border-radius: 6px;
+
+            color: #6d6266;
+        }
+
+        /* BACK LINK */
+
+        .back-link {
+            display: inline-block;
+
+            margin-top: 24px;
+            padding: 9px 14px;
+
+            border: 1px solid #d5aeba;
+            border-radius: 5px;
+
+            color: #981b3f;
+            background: white;
+
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            background: #f8e8ed;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                padding: 0 18px 40px;
+            }
+
+            .top-nav {
+                margin: 0 -18px 30px;
+                padding: 14px 18px;
+
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .container {
+                padding: 27px 23px;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
         }
     </style>
 </head>
 
 <body>
 
+<nav class="top-nav">
+
+    <div class="nav-brand">
+        BBMS
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{% url 'donors:register' %}">
+            Register Donor
+        </a>
+
+        <a href="{% url 'donors:search' %}" class="active">
+            Search Donors
+        </a>
+
+        <a href="{% url 'inventory:dashboard' %}">
+            Inventory
+        </a>
+
+        <a href="{% url 'blood_search:availability' %}">
+            Blood Search
+        </a>
+
+        <form method="post"
+              action="{% url 'accounts:logout' %}"
+              class="logout-form">
+
+            {% csrf_token %}
+
+            <button type="submit">
+                Logout
+            </button>
+
+        </form>
+
+    </div>
+
+</nav>
+
+
 <div class="container">
 
     <h1>Donation History</h1>
+
 
     <div class="donor-info">
 
@@ -86,6 +337,7 @@
         </p>
 
     </div>
+
 
     {% if donations %}
 
@@ -128,6 +380,12 @@
         </p>
 
     {% endif %}
+
+
+    <a class="back-link"
+       href="{% url 'donors:search' %}">
+        Back to Search
+    </a>
 
 </div>
 
