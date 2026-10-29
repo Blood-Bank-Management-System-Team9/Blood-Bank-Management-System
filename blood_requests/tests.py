@@ -435,26 +435,33 @@ class ReviewBloodRequestTests(TestCase):
             BloodRequest.Status.PENDING,
         )
 
-    def test_staff_role_via_user_profile_can_review(self):
+    def test_user_without_role_group_cannot_review(self):
         """
-        Users set up with accounts.UserProfile role STAFF
-        (instead of the Blood Bank Staff group) can also review.
+        A user whose automatically created profile defaults to STAFF
+        must not review requests unless explicitly assigned to the
+        Blood Bank Staff group.
         """
         user = User.objects.create_user(
-            username="staff2",
+            username="unassigned",
             password="testpass123",
         )
-        user.profile.role = UserProfile.Role.STAFF
-        user.profile.save()
 
-        self.client.login(username="staff2", password="testpass123")
+        self.client.login(
+            username="unassigned",
+            password="testpass123",
+        )
 
-        self.client.post(self.detail_url, {"decision": "approve"})
+        response = self.client.post(
+            self.detail_url,
+            {"decision": "approve"},
+        )
+
+        self.assertEqual(response.status_code, 403)
 
         self.blood_request.refresh_from_db()
         self.assertEqual(
             self.blood_request.status,
-            BloodRequest.Status.APPROVED,
+            BloodRequest.Status.PENDING,
         )
 
     def test_unauthenticated_user_is_redirected_to_login(self):
