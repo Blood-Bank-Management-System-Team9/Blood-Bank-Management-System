@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Request Blood | BBMS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0 52px 60px;
+            background: #fbf6f7;
+            color: #302c2e;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ---------------- NAVIGATION ---------------- */
+
+        .top-nav {
+            margin: 0 -52px 42px;
+            padding: 0 52px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: #ffffff;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        .nav-brand {
+            color: #981b3f;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .nav-links a {
+            padding: 9px 11px;
+
+            color: #5f5659;
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #981b3f;
+            background: #fbeef2;
+        }
+
+        .nav-links a.active {
+            color: #981b3f;
+            background: #f8e8ed;
+        }
+
+        .logout-form {
+            margin: 0 0 0 5px;
+        }
+
+        .logout-form button {
+            border: 1px solid #d9b8c2;
+            border-radius: 5px;
+
+            background: white;
+            color: #981b3f;
+
+            padding: 8px 12px;
+
+            font-size: 13px;
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+        .logout-form button:hover {
+            background: #981b3f;
+            color: white;
+        }
+
+        /* ---------------- PAGE ---------------- */
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+
+            background: white;
+
+            padding: 36px 40px;
+
+            border: 1px solid #ead9de;
+            border-radius: 10px;
+
+            box-shadow: 0 3px 14px rgba(110, 25, 53, 0.06);
+        }
+
+        h1 {
+            margin: 0 0 10px;
+
+            color: #2f292b;
+            font-size: 31px;
+            font-weight: 700;
+        }
+
+        h1::after {
+            content: "";
+            display: block;
+
+            width: 50px;
+            height: 4px;
+
+            margin-top: 12px;
+
+            background: #981b3f;
+            border-radius: 4px;
+        }
+
+        .page-description {
+            margin: 22px 0 28px;
+
+            color: #625b5e;
+            font-size: 15px;
+        }
+
+        /* ---------------- REQUEST FORM ---------------- */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 22px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            color: #302c2e;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .required-mark {
+            color: #981b3f;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d8cfd2;
+            border-radius: 5px;
+            background: white;
+            color: #302c2e;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #981b3f;
+            box-shadow: 0 0 0 2px rgba(152, 27, 63, 0.08);
+        }
+
+        .field-error {
+            margin: 6px 0 0;
+            color: #a4283a;
+            font-size: 13px;
+        }
+
+        .has-error input,
+        .has-error select,
+        .has-error textarea {
+            border-color: #b53145;
+        }
+
+        .submit-button {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 5px;
+            background: #981b3f;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background: #801632;
+        }
+
+        /* ---------------- MESSAGES ---------------- */
+
+        .message {
+            padding: 12px 14px;
+
+            margin-bottom: 18px;
+
+            border-radius: 5px;
+
+            font-size: 14px;
+        }
+
+        .message.success {
+            background: #edf7f2;
+            color: #35634f;
+            border: 1px solid #c9e6d8;
+        }
+
+        .message.error {
+            background: #fff0f2;
+            color: #a4283a;
+            border: 1px solid #f0c7ce;
+        }
+
+        /* ---------------- NOTE ---------------- */
+
+        .note {
+            margin-top: 18px;
+
+            padding: 11px 13px;
+
+            color: #6d6266;
+            background: #fffafb;
+
+            border-left: 3px solid #981b3f;
+            border-radius: 4px;
+
+            font-size: 13px;
+        }
+
+        /* ---------------- RESPONSIVE ---------------- */
+
+        @media (max-width: 900px) {
+
+            body {
+                padding: 0 18px 40px;
+            }
+
+            .top-nav {
+                margin: 0 -18px 30px;
+                padding: 14px 18px;
+
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .container {
+                padding: 27px 23px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="top-nav">
+
+    <div class="nav-brand">
+        BBMS
+    </div>
+
+    <div class="nav-links">
+
+        <a href="{% url 'donors:register' %}">
+            Register Donor
+        </a>
+
+        <a href="{% url 'donors:search' %}">
+            Search Donors
+        </a>
+
+        <a href="{% url 'inventory:dashboard' %}">
+            Inventory
+        </a>
+
+        <a href="{% url 'blood_search:availability' %}">
+            Blood Search
+        </a>
+
+        <a href="{% url 'blood_requests:submit' %}" class="active">
+            Request Blood
+        </a>
+
+        <form method="post"
+              action="{% url 'accounts:logout' %}"
+              class="logout-form">
+
+            {% csrf_token %}
+
+            <button type="submit">
+                Logout
+            </button>
+
+        </form>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <h1>Request Blood</h1>
+
+    <p class="page-description">
+        Submit a blood request for your hospital or organization.
+        New requests are recorded as <strong>Pending</strong> until reviewed by blood bank staff.
+    </p>
+
+
+    {% if messages %}
+
+        {% for message in messages %}
+
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endif %}
+
+
+    {% if form.non_field_errors %}
+
+        <div class="message error">
+            {{ form.non_field_errors|join:" " }}
+        </div>
+
+    {% endif %}
+
+
+    <form method="post" novalidate>
+
+        {% csrf_token %}
+
+        <div class="form-grid">
+
+            {% for field in form %}
+
+                <div class="form-group{% if field.name == 'reason' %} full{% endif %}{% if field.errors %} has-error{% endif %}">
+
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {% if field.field.required %}<span class="required-mark">*</span>{% endif %}
+                    </label>
+
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <button type="submit" class="submit-button">
+            Submit Request
+        </button>
+
+    </form>
+
+
+    <p class="note">
+        Fields marked * are mandatory. Check availability first using Blood Search.
+    </p>
+
+</div>
+
+</body>
+</html>

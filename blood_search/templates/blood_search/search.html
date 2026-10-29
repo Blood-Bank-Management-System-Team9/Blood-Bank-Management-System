@@ -348,6 +348,12 @@
             Blood Search
         </a>
 
+        {% if can_request %}
+            <a href="{% url 'blood_requests:submit' %}">
+                Request Blood
+            </a>
+        {% endif %}
+
         <form method="post"
               action="{% url 'accounts:logout' %}"
               class="logout-form">
@@ -474,6 +480,19 @@
         <p class="note">
             Expired units are not included in the available quantity.
         </p>
+
+
+        {% if can_request %}
+
+            <p>
+                <a href="{% url 'blood_requests:submit' %}?blood_group={{ result.blood_group|urlencode }}"
+                   class="search-button"
+                   style="display: inline-block; text-decoration: none;">
+                    Request {{ result.blood_group }} blood
+                </a>
+            </p>
+
+        {% endif %}
 
     {% endif %}
 

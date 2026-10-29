@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "inventory",
     "monitoring",
     "blood_search",
-    "requests",
+    "blood_requests",
     "issues",
     "reports",
 ]
