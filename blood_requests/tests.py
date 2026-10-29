@@ -219,3 +219,273 @@ class SubmitBloodRequestTests(TestCase):
 
         self.assertEqual(BloodRequest.objects.count(), 1)
         self.assertEqual(BloodRequest.objects.get().patient_name, payload)
+
+class ReviewBloodRequestTests(TestCase):
+    """
+    E5-S1 (FR-7.1): Blood Bank Staff open a pending request and
+    approve or reject it. The status changes accordingly.
+    """
+
+    def setUp(self):
+        self.hospital_group = Group.objects.create(name="Hospital Staff")
+        self.staff_group = Group.objects.create(name="Blood Bank Staff")
+
+        self.hospital_user = User.objects.create_user(
+            username="hospital1",
+            password="testpass123",
+        )
+        self.hospital_user.groups.add(self.hospital_group)
+
+        self.staff_user = User.objects.create_user(
+            username="bloodstaff",
+            password="testpass123",
+        )
+        self.staff_user.groups.add(self.staff_group)
+
+        self.blood_request = BloodRequest.objects.create(
+            requested_by=self.hospital_user,
+            hospital_name="City Hospital",
+            patient_name="Anita Rao",
+            blood_group="A+",
+            units_required=2,
+            reason="Surgery",
+        )
+
+        self.pending_url = reverse("blood_requests:pending")
+        self.detail_url = reverse(
+            "blood_requests:detail",
+            args=[self.blood_request.request_id],
+        )
+
+    def login_staff(self):
+        self.client.login(username="bloodstaff", password="testpass123")
+
+    def login_hospital(self):
+        self.client.login(username="hospital1", password="testpass123")
+
+    # ---- opening pending requests ----
+
+    def test_staff_sees_pending_request_in_list(self):
+        self.login_staff()
+
+        response = self.client.get(self.pending_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.blood_request.request_id)
+        self.assertContains(response, "City Hospital")
+
+    def test_staff_can_open_request_details(self):
+        self.login_staff()
+
+        response = self.client.get(self.detail_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Anita Rao")
+        self.assertContains(response, "Surgery")
+        self.assertContains(response, "Approve")
+        self.assertContains(response, "Reject")
+
+    def test_unknown_request_returns_404(self):
+        self.login_staff()
+
+        response = self.client.get(
+            reverse("blood_requests:detail", args=["NOSUCHID12"])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_opening_details_does_not_change_status(self):
+        self.login_staff()
+
+        self.client.get(self.detail_url)
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )
+
+    # ---- approve ----
+
+    def test_staff_can_approve_request(self):
+        self.login_staff()
+
+        response = self.client.post(
+            self.detail_url,
+            {"decision": "approve", "note": "Stock checked"},
+        )
+
+        self.assertRedirects(response, self.pending_url)
+
+        self.blood_request.refresh_from_db()
+
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
+        self.assertEqual(self.blood_request.reviewed_by, self.staff_user)
+        self.assertIsNotNone(self.blood_request.reviewed_at)
+        self.assertEqual(self.blood_request.review_note, "Stock checked")
+
+    def test_approved_request_leaves_pending_list(self):
+        self.login_staff()
+
+        self.client.post(self.detail_url, {"decision": "approve"})
+
+        response = self.client.get(self.pending_url)
+
+        self.assertNotIn(
+            self.blood_request,
+            list(response.context["pending_requests"]),
+        )
+        self.assertContains(response, "There are no pending blood requests")
+
+    # ---- reject ----
+
+    def test_staff_can_reject_request(self):
+        self.login_staff()
+
+        response = self.client.post(
+            self.detail_url,
+            {"decision": "reject", "note": "Duplicate request"},
+        )
+
+        self.assertRedirects(response, self.pending_url)
+
+        self.blood_request.refresh_from_db()
+
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.REJECTED,
+        )
+        self.assertEqual(self.blood_request.reviewed_by, self.staff_user)
+        self.assertEqual(self.blood_request.review_note, "Duplicate request")
+
+    # ---- status rules ----
+
+    def test_request_cannot_be_reviewed_twice(self):
+        self.login_staff()
+
+        self.client.post(self.detail_url, {"decision": "approve"})
+
+        response = self.client.post(
+            self.detail_url,
+            {"decision": "reject"},
+            follow=True,
+        )
+
+        self.assertContains(response, "has already been reviewed")
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
+
+    def test_invalid_decision_changes_nothing(self):
+        self.login_staff()
+
+        response = self.client.post(self.detail_url, {"decision": "maybe"})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )
+
+    def test_missing_decision_changes_nothing(self):
+        self.login_staff()
+
+        self.client.post(self.detail_url, {"note": "no button pressed"})
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )
+
+    # ---- access control ----
+
+    def test_hospital_user_cannot_open_pending_list(self):
+        self.login_hospital()
+
+        response = self.client.get(self.pending_url)
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_hospital_user_cannot_open_details(self):
+        self.login_hospital()
+
+        response = self.client.get(self.detail_url)
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_hospital_user_cannot_approve_own_request(self):
+        self.login_hospital()
+
+        response = self.client.post(self.detail_url, {"decision": "approve"})
+
+        self.assertEqual(response.status_code, 403)
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )
+
+    def test_user_without_role_group_cannot_review(self):
+        """
+        A user whose automatically created profile defaults to STAFF
+        must not review requests unless explicitly assigned to the
+        Blood Bank Staff group.
+        """
+        user = User.objects.create_user(
+            username="unassigned",
+            password="testpass123",
+        )
+
+        self.client.login(
+            username="unassigned",
+            password="testpass123",
+        )
+
+        response = self.client.post(
+            self.detail_url,
+            {"decision": "approve"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )
+
+    def test_unauthenticated_user_is_redirected_to_login(self):
+        response = self.client.post(self.detail_url, {"decision": "approve"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/accounts/login/", response["Location"])
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )
+
+    def test_review_post_without_csrf_token_is_rejected(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.login(username="bloodstaff", password="testpass123")
+
+        response = csrf_client.post(self.detail_url, {"decision": "approve"})
+
+        self.assertEqual(response.status_code, 403)
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.PENDING,
+        )

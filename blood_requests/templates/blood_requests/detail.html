@@ -1,0 +1,112 @@
+{% extends "blood_requests/review_base.html" %}
+
+{% block title %}Request {{ blood_request.request_id }} | BBMS{% endblock %}
+
+{% block content %}
+
+<h1>Request {{ blood_request.request_id }}</h1>
+
+<p class="page-description">
+    Status: <span class="badge {{ blood_request.status }}">{{ blood_request.status }}</span>
+</p>
+
+<dl class="detail-grid">
+    <div>
+        <dt>Hospital / Organization</dt>
+        <dd>{{ blood_request.hospital_name }}</dd>
+    </div>
+    <div>
+        <dt>Patient Name</dt>
+        <dd>{{ blood_request.patient_name }}</dd>
+    </div>
+    <div>
+        <dt>Blood Group</dt>
+        <dd>{{ blood_request.blood_group }}</dd>
+    </div>
+    <div>
+        <dt>Units Required</dt>
+        <dd>{{ blood_request.units_required }}</dd>
+    </div>
+    <div>
+        <dt>Required By</dt>
+        <dd>{{ blood_request.required_by_date|default:"Not specified" }}</dd>
+    </div>
+    <div>
+        <dt>Submitted By</dt>
+        <dd>{{ blood_request.requested_by.username }} on {{ blood_request.created_at|date:"d M Y, H:i" }}</dd>
+    </div>
+    <div class="full">
+        <dt>Reason / Request Details</dt>
+        <dd>{{ blood_request.reason|linebreaksbr }}</dd>
+    </div>
+</dl>
+
+
+<h2>Current Stock</h2>
+
+{% if stock_is_short %}
+    <div class="message warning">
+        Only <strong>{{ available_units }}</strong> unit(s) of {{ blood_request.blood_group }}
+        are available, but <strong>{{ blood_request.units_required }}</strong> were requested.
+    </div>
+{% else %}
+    <div class="message success">
+        <strong>{{ available_units }}</strong> unit(s) of {{ blood_request.blood_group }}
+        available for the <strong>{{ blood_request.units_required }}</strong> requested.
+    </div>
+{% endif %}
+
+
+{% if blood_request.status == "Pending" %}
+
+    <h2>Review Decision</h2>
+
+    <form method="post" novalidate>
+
+        {% csrf_token %}
+
+        <label for="{{ form.note.id_for_label }}">{{ form.note.label }}</label>
+        {{ form.note }}
+
+        {% for error in form.note.errors %}
+            <p class="field-error">{{ error }}</p>
+        {% endfor %}
+
+        <div class="actions">
+            <button type="submit" name="decision" value="approve" class="btn approve"
+                    onclick="return confirm('Approve this request?');">
+                Approve
+            </button>
+
+            <button type="submit" name="decision" value="reject" class="btn reject"
+                    onclick="return confirm('Reject this request?');">
+                Reject
+            </button>
+        </div>
+
+    </form>
+
+{% else %}
+
+    <h2>Review Outcome</h2>
+
+    <dl class="detail-grid">
+        <div>
+            <dt>Reviewed By</dt>
+            <dd>{{ blood_request.reviewed_by.username|default:"Not recorded" }}</dd>
+        </div>
+        <div>
+            <dt>Reviewed At</dt>
+            <dd>{{ blood_request.reviewed_at|date:"d M Y, H:i"|default:"Not recorded" }}</dd>
+        </div>
+        <div class="full">
+            <dt>Note</dt>
+            <dd>{{ blood_request.review_note|default:"No note added" }}</dd>
+        </div>
+    </dl>
+
+{% endif %}
+
+<a class="back-link" href="{% url 'blood_requests:pending' %}">&larr; Back to pending requests</a>
+
+{% endblock %}

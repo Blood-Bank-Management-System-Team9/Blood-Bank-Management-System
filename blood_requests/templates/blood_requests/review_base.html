@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Review Requests | BBMS{% endblock %}</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0 52px 60px;
+            background: #fbf6f7;
+            color: #302c2e;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ---------------- NAVIGATION ---------------- */
+
+        .top-nav {
+            margin: 0 -52px 42px;
+            padding: 0 52px;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        .nav-brand { color: #981b3f; font-size: 20px; font-weight: 700; }
+
+        .nav-links { display: flex; align-items: center; gap: 7px; }
+
+        .nav-links a {
+            padding: 9px 11px;
+            color: #5f5659;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover { color: #981b3f; background: #fbeef2; }
+        .nav-links a.active { color: #981b3f; background: #f8e8ed; }
+
+        .logout-form { margin: 0 0 0 5px; }
+
+        .logout-form button {
+            border: 1px solid #d9b8c2;
+            border-radius: 5px;
+            background: white;
+            color: #981b3f;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .logout-form button:hover { background: #981b3f; color: white; }
+
+        /* ---------------- PAGE ---------------- */
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: white;
+            padding: 36px 40px;
+            border: 1px solid #ead9de;
+            border-radius: 10px;
+            box-shadow: 0 3px 14px rgba(110, 25, 53, 0.06);
+        }
+
+        h1 { margin: 0 0 10px; color: #2f292b; font-size: 31px; font-weight: 700; }
+
+        h1::after {
+            content: "";
+            display: block;
+            width: 50px;
+            height: 4px;
+            margin-top: 12px;
+            background: #981b3f;
+            border-radius: 4px;
+        }
+
+        h2 { margin: 30px 0 12px; font-size: 18px; color: #2f292b; }
+
+        .page-description { margin: 22px 0 28px; color: #625b5e; font-size: 15px; }
+
+        /* ---------------- MESSAGES ---------------- */
+
+        .message { padding: 12px 14px; margin-bottom: 18px; border-radius: 5px; font-size: 14px; }
+        .message.success { background: #edf7f2; color: #35634f; border: 1px solid #c9e6d8; }
+        .message.error { background: #fff0f2; color: #a4283a; border: 1px solid #f0c7ce; }
+        .message.warning { background: #fff8e8; color: #7a5a12; border: 1px solid #f0dfb0; }
+
+        /* ---------------- TABLE ---------------- */
+
+        .table-wrap { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+
+        th {
+            text-align: left;
+            padding: 11px 12px;
+            background: #fbeef2;
+            color: #5a1a2e;
+            border-bottom: 1px solid #ead9de;
+        }
+
+        td { padding: 11px 12px; border-bottom: 1px solid #f1e6e9; }
+
+        .view-link { color: #981b3f; font-weight: 700; text-decoration: none; }
+        .view-link:hover { text-decoration: underline; }
+
+        .empty { padding: 22px; color: #6d6266; background: #fffafb; border-radius: 6px; }
+
+        /* ---------------- DETAIL ---------------- */
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px 28px;
+            margin: 0;
+        }
+
+        .detail-grid div.full { grid-column: 1 / -1; }
+
+        .detail-grid dt { font-size: 12px; font-weight: 700; color: #7b6f73; text-transform: uppercase; }
+        .detail-grid dd { margin: 3px 0 0; font-size: 15px; }
+
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 13px; font-weight: 700; }
+        .badge.Pending { background: #fff4d6; color: #7a5a12; }
+        .badge.Approved { background: #e3f4ea; color: #2c6a4a; }
+        .badge.Rejected { background: #fde4e8; color: #a4283a; }
+        .badge.Fulfilled { background: #e4ecfa; color: #2b4f8c; }
+
+        /* ---------------- REVIEW FORM ---------------- */
+
+        label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 7px; }
+
+        textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d8cfd2;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea:focus { outline: none; border-color: #981b3f; box-shadow: 0 0 0 2px rgba(152, 27, 63, 0.08); }
+
+        .field-error { margin: 6px 0 0; color: #a4283a; font-size: 13px; }
+
+        .actions { display: flex; gap: 12px; margin-top: 16px; }
+
+        .btn {
+            padding: 11px 22px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn.approve { background: #2c7a55; }
+        .btn.approve:hover { background: #226044; }
+        .btn.reject { background: #981b3f; }
+        .btn.reject:hover { background: #801632; }
+
+        .back-link { display: inline-block; margin-top: 24px; color: #981b3f; font-weight: 700; text-decoration: none; }
+
+        @media (max-width: 900px) {
+            body { padding: 0 18px 40px; }
+            .top-nav { margin: 0 -18px 30px; padding: 14px 18px; align-items: flex-start; gap: 15px; }
+            .nav-links { flex-wrap: wrap; justify-content: flex-end; }
+            .container { padding: 27px 23px; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="top-nav">
+
+    <div class="nav-brand">BBMS</div>
+
+    <div class="nav-links">
+
+        <a href="{% url 'donors:register' %}">Register Donor</a>
+
+        <a href="{% url 'donors:search' %}">Search Donors</a>
+
+        <a href="{% url 'inventory:dashboard' %}">Inventory</a>
+
+        <a href="{% url 'blood_search:availability' %}">Blood Search</a>
+
+        <a href="{% url 'blood_requests:pending' %}" class="active">Review Requests</a>
+
+        <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+</div>
+
+</body>
+</html>

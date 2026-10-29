@@ -78,6 +78,24 @@ class BloodRequest(models.Model):
         choices=Status.choices,
         default=Status.PENDING,
     )
+    
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_blood_requests",
+    )
+
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    review_note = models.CharField(
+        max_length=300,
+        blank=True,
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True,
