@@ -1,12 +1,13 @@
 from datetime import date, timedelta
 
+from django.contrib.auth.models import Group, User
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from donors.models import Donor
-
 from .models import Donation
-
+from inventory.services import get_available_units
 
 class DonationHistoryLinkTests(TestCase):
     def test_donation_is_linked_to_correct_donor(self):
@@ -94,4 +95,56 @@ class DonationHistoryLinkTests(TestCase):
         self.assertEqual(
             accepted_donation.expiry_date,
             donation.expiry_date,
+        )
+
+class ImmediateInventoryReflectionTests(TestCase):
+    def setUp(self):
+        self.staff_group = Group.objects.create(
+            name="Blood Bank Staff"
+        )
+        self.user = User.objects.create_user(
+            username="inventory_staff",
+            password="testpass123",
+        )
+        self.user.groups.add(self.staff_group)
+        self.client.force_login(self.user)
+
+        self.donor = Donor.objects.create(
+            full_name="Inventory Test Donor",
+            date_of_birth="2000-01-01",
+            blood_group=Donor.BloodGroup.O_POSITIVE,
+            phone_number="9876501234",
+            address="Test Address",
+        )
+
+    def test_accepted_donation_immediately_updates_inventory(self):
+        today = timezone.localdate()
+
+        response = self.client.post(
+            reverse("donations:record"),
+            {
+                "donor_id": self.donor.donor_id,
+                "donation_date": today.isoformat(),
+                "quantity_units": 3,
+                "expiry_date": (
+                    today + timedelta(days=30)
+                ).isoformat(),
+                "donation_status": Donation.DonationStatus.ACCEPTED,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            get_available_units("O+"),
+            3,
+        )
+
+        dashboard_response = self.client.get(
+            reverse("inventory:dashboard")
+        )
+
+        self.assertEqual(dashboard_response.status_code, 200)
+        self.assertEqual(
+            dashboard_response.context["inventory"]["O+"],
+            3,
         )
