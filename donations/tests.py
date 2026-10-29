@@ -1,3 +1,4 @@
+
 from datetime import date, timedelta
 
 from django.contrib.auth.models import Group, User
@@ -8,6 +9,7 @@ from django.utils import timezone
 from donors.models import Donor
 from .models import Donation
 from inventory.services import get_available_units
+
 
 class DonationHistoryLinkTests(TestCase):
     def test_donation_is_linked_to_correct_donor(self):
@@ -27,10 +29,7 @@ class DonationHistoryLinkTests(TestCase):
             donation_status=Donation.DonationStatus.ACCEPTED,
         )
 
-        self.assertEqual(
-            donation.donor,
-            donor,
-        )
+        self.assertEqual(donation.donor, donor)
 
         self.assertTrue(
             donor.donation_set.filter(
@@ -42,20 +41,13 @@ class DonationHistoryLinkTests(TestCase):
             donation_id=donation.donation_id
         )
 
-        self.assertEqual(
-            linked_donation.blood_group,
-            donor.blood_group,
-        )
-
-        self.assertEqual(
-            linked_donation.quantity_units,
-            1,
-        )
-
+        self.assertEqual(linked_donation.blood_group, donor.blood_group)
+        self.assertEqual(linked_donation.quantity_units, 1)
         self.assertEqual(
             linked_donation.donation_status,
             Donation.DonationStatus.ACCEPTED,
         )
+
     def test_accepted_donation_details_are_available_for_inventory(self):
         donor = Donor.objects.create(
             full_name="Ravi Kumar",
@@ -81,21 +73,16 @@ class DonationHistoryLinkTests(TestCase):
             accepted_donation.blood_group,
             Donor.BloodGroup.O_POSITIVE,
         )
-
-        self.assertEqual(
-            accepted_donation.quantity_units,
-            1,
-        )
-
+        self.assertEqual(accepted_donation.quantity_units, 1)
         self.assertEqual(
             accepted_donation.donation_date,
             donation.donation_date,
         )
-
         self.assertEqual(
             accepted_donation.expiry_date,
             donation.expiry_date,
         )
+
 
 class ImmediateInventoryReflectionTests(TestCase):
     def setUp(self):
@@ -134,10 +121,7 @@ class ImmediateInventoryReflectionTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            get_available_units("O+"),
-            3,
-        )
+        self.assertEqual(get_available_units("O+"), 3)
 
         dashboard_response = self.client.get(
             reverse("inventory:dashboard")
@@ -147,4 +131,65 @@ class ImmediateInventoryReflectionTests(TestCase):
         self.assertEqual(
             dashboard_response.context["inventory"]["O+"],
             3,
+        )
+
+    def test_inventory_dashboard_refresh_shows_latest_quantity(self):
+        today = timezone.localdate()
+
+        response = self.client.post(
+            reverse("donations:record"),
+            {
+                "donor_id": self.donor.donor_id,
+                "donation_date": today.isoformat(),
+                "quantity_units": 3,
+                "expiry_date": (
+                    today + timedelta(days=30)
+                ).isoformat(),
+                "donation_status": Donation.DonationStatus.ACCEPTED,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        first_dashboard_response = self.client.get(
+            reverse("inventory:dashboard")
+        )
+
+        self.assertEqual(
+            first_dashboard_response.status_code,
+            200,
+        )
+        self.assertEqual(
+            first_dashboard_response.context["inventory"]["O+"],
+            3,
+        )
+
+        response = self.client.post(
+            reverse("donations:record"),
+            {
+                "donor_id": self.donor.donor_id,
+                "donation_date": today.isoformat(),
+                "quantity_units": 2,
+                "expiry_date": (
+                    today + timedelta(days=30)
+                ).isoformat(),
+                "donation_status": Donation.DonationStatus.ACCEPTED,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(get_available_units("O+"), 5)
+
+        refreshed_dashboard_response = self.client.get(
+            reverse("inventory:dashboard")
+        )
+
+        self.assertEqual(
+            refreshed_dashboard_response.status_code,
+            200,
+        )
+        self.assertEqual(
+            refreshed_dashboard_response.context["inventory"]["O+"],
+            5,
         )
