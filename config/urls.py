@@ -27,6 +27,7 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path("donors/", include("donors.urls")),
     path("blood-search/", include("blood_search.urls")),
+    path("requests/", include("blood_requests.urls")),
     path("api/", include("donations.urls")),
     path(
         "api/donors/<str:donor_id>",

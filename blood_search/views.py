@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 
+from blood_requests.permissions import can_submit_request
+
 from .services import BLOOD_GROUPS, get_available_units, is_valid_blood_group
 
 
@@ -62,5 +64,6 @@ def search_availability(request):
             "blood_groups": BLOOD_GROUPS,
             "selected_blood_group": blood_group,
             "result": result,
+            "can_request": can_submit_request(request.user),
         },
     )
