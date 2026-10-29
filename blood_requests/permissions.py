@@ -7,8 +7,8 @@ The project currently has two role mechanisms:
 - accounts.UserProfile.role ("STAFF", "HOSPITAL", "ADMIN"),
   used by accounts.decorators.role_required.
 
-These helpers accept either, so blood requests work whichever one a
-user account has been set up with.
+General role checks accept either mechanism. Sensitive request-review
+actions require explicit Blood Bank Staff group membership.
 """
 
 HOSPITAL = ("Hospital Staff", "HOSPITAL")
@@ -55,6 +55,12 @@ def can_submit_request(user):
 
 def can_review_request(user):
     """
-    FR-7.1: only authorized Blood Bank Staff approve or reject requests.
+    FR-7.1: only explicitly assigned Blood Bank Staff
+    may approve or reject blood requests.
     """
-    return user_has_role(user, BLOOD_BANK_STAFF)
+    if not user.is_authenticated:
+        return False
+
+    return user.groups.filter(
+        name=BLOOD_BANK_STAFF[0]
+    ).exists()
