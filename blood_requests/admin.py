@@ -16,4 +16,10 @@ class BloodRequestAdmin(admin.ModelAdmin):
     )
     list_filter = ("status", "blood_group")
     search_fields = ("request_id", "hospital_name", "patient_name")
-    readonly_fields = ("request_id", "created_at", "updated_at")
+    readonly_fields = (
+        "request_id",
+        "reviewed_by",
+        "reviewed_at",
+        "created_at",
+        "updated_at",
+    )

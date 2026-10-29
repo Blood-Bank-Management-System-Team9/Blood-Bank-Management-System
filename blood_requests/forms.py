@@ -61,3 +61,24 @@ class BloodRequestForm(forms.ModelForm):
             )
 
         return value
+    
+class ReviewDecisionForm(forms.Form):
+    """
+    Optional note that staff can attach when approving or rejecting
+    a pending request (E5-S1, FR-7.1).
+    """
+
+    note = forms.CharField(
+        required=False,
+        max_length=300,
+        label="Note (optional)",
+        widget=forms.Textarea(
+            attrs={
+                "rows": 3,
+                "placeholder": "e.g. reason for rejection, or handling instructions",
+            }
+        ),
+    )
+
+    def clean_note(self):
+        return self.cleaned_data["note"].strip()

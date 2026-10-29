@@ -1,0 +1,56 @@
+{% extends "blood_requests/review_base.html" %}
+
+{% block title %}Pending Blood Requests | BBMS{% endblock %}
+
+{% block content %}
+
+<h1>Pending Blood Requests</h1>
+
+<p class="page-description">
+    Requests submitted by hospitals that are waiting for review.
+    Open a request to check stock and <strong>approve</strong> or <strong>reject</strong> it.
+</p>
+
+{% if pending_requests %}
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Hospital / Organization</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Required By</th>
+                    <th>Submitted</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blood_request in pending_requests %}
+                    <tr>
+                        <td>{{ blood_request.request_id }}</td>
+                        <td>{{ blood_request.hospital_name }}</td>
+                        <td>{{ blood_request.blood_group }}</td>
+                        <td>{{ blood_request.units_required }}</td>
+                        <td>{{ blood_request.required_by_date|default:"Not specified" }}</td>
+                        <td>{{ blood_request.created_at|date:"d M Y, H:i" }}</td>
+                        <td>
+                            <a class="view-link"
+                               href="{% url 'blood_requests:detail' request_id=blood_request.request_id %}">
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+
+    <p class="empty">There are no pending blood requests right now.</p>
+
+{% endif %}
+
+{% endblock %}
