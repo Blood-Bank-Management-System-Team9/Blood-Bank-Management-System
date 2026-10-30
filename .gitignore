@@ -20,3 +20,6 @@ Thumbs.db
 .env
 
 browser_screenshots/
+performance/perf_config.json
+performance/results*.csv
+performance/results*.html
