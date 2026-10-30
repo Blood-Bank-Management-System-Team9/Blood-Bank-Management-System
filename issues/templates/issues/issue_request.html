@@ -1,0 +1,115 @@
+{% extends "blood_requests/review_base.html" %}
+
+{% block title %}Issue Blood {{ blood_request.request_id }} | BBMS{% endblock %}
+
+{% block content %}
+
+<h1>Issue Blood</h1>
+
+<p class="page-description">
+    Request <strong>{{ blood_request.request_id }}</strong>
+    &middot; Status: <span class="badge {{ blood_request.status }}">{{ blood_request.status }}</span>
+</p>
+
+<dl class="detail-grid">
+    <div>
+        <dt>Hospital / Organization</dt>
+        <dd>{{ blood_request.hospital_name }}</dd>
+    </div>
+    <div>
+        <dt>Patient Name</dt>
+        <dd>{{ blood_request.patient_name }}</dd>
+    </div>
+    <div>
+        <dt>Blood Group</dt>
+        <dd>{{ blood_request.blood_group }}</dd>
+    </div>
+    <div>
+        <dt>Units Required</dt>
+        <dd>{{ blood_request.units_required }}</dd>
+    </div>
+</dl>
+
+
+{% if issue %}
+
+    <h2>Issue Record</h2>
+
+    <div class="message success">
+        {{ issue.units_issued }} unit(s) of {{ issue.blood_group }} were issued on
+        {{ issue.issued_at|date:"d M Y, H:i" }}.
+    </div>
+
+    <dl class="detail-grid">
+        <div>
+            <dt>Issue ID</dt>
+            <dd>{{ issue.issue_id }}</dd>
+        </div>
+        <div>
+            <dt>Issued By</dt>
+            <dd>{{ issue.issued_by.username|default:"Not recorded" }}</dd>
+        </div>
+    </dl>
+
+    <h2>Taken From</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Donation ID</th>
+                    <th>Expiry Date</th>
+                    <th>Units</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for allocation in issue.allocations.all %}
+                    <tr>
+                        <td>{{ allocation.donation.donation_id }}</td>
+                        <td>{{ allocation.donation.expiry_date|date:"d M Y" }}</td>
+                        <td>{{ allocation.units }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% elif blood_request.status == "Approved" %}
+
+    <h2>Current Stock</h2>
+
+    {% if can_issue %}
+        <div class="message success">
+            <strong>{{ available_units }}</strong> unit(s) of {{ blood_request.blood_group }} available.
+            Issuing <strong>{{ blood_request.units_required }}</strong> unit(s) will use the batches
+            expiring soonest first.
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit" class="btn approve"
+                        onclick="return confirm('Issue {{ blood_request.units_required }} unit(s) of {{ blood_request.blood_group }}?');">
+                    Issue {{ blood_request.units_required }} unit(s)
+                </button>
+            </div>
+        </form>
+    {% else %}
+        <div class="message warning">
+            Only <strong>{{ available_units }}</strong> unit(s) of {{ blood_request.blood_group }} are available,
+            but <strong>{{ blood_request.units_required }}</strong> are required. Blood cannot be issued yet.
+        </div>
+    {% endif %}
+
+{% else %}
+
+    <div class="message warning">
+        Only Approved requests can be issued. This request is currently
+        <strong>{{ blood_request.status }}</strong>.
+    </div>
+
+{% endif %}
+
+<a class="back-link" href="{% url 'blood_requests:all' %}">&larr; Back to all requests</a>
+
+{% endblock %}
