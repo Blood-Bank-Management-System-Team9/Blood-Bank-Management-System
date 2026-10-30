@@ -1,8 +1,14 @@
 import json
 from datetime import timedelta
+from unittest.mock import patch
+
+import threading
+from queue import Queue
+from django.db import close_old_connections, connection
 
 from django.contrib.auth.models import Group, User
-from django.test import Client, TestCase
+from django.core.exceptions import ValidationError
+from django.test import Client, TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -14,6 +20,7 @@ from inventory.services import get_available_units
 
 from .issuance import InsufficientStock, RequestNotApproved, issue_blood
 from .models import BloodIssue, BloodIssueAllocation
+from .services import validate_stock_for_issue
 
 
 class BloodIssueTestBase(TestCase):
@@ -36,8 +43,13 @@ class BloodIssueTestBase(TestCase):
         )
         self.hospital_user.groups.add(hospital_group)
 
-    def make_donation(self, blood_group, units, expiry_offset_days,
-                      status=Donation.DonationStatus.ACCEPTED):
+    def make_donation(
+        self,
+        blood_group,
+        units,
+        expiry_offset_days,
+        status=Donation.DonationStatus.ACCEPTED,
+    ):
         self.phone_counter += 1
         donor = Donor.objects.create(
             full_name=f"Donor {self.phone_counter}",
@@ -54,7 +66,12 @@ class BloodIssueTestBase(TestCase):
             donation_status=status,
         )
 
-    def make_request(self, blood_group, units, status=BloodRequest.Status.APPROVED):
+    def make_request(
+        self,
+        blood_group,
+        units,
+        status=BloodRequest.Status.APPROVED,
+    ):
         return BloodRequest.objects.create(
             requested_by=self.hospital_user,
             hospital_name="City Hospital",
@@ -84,7 +101,10 @@ class IssueBloodServiceTests(BloodIssueTestBase):
         issue_blood(blood_request, self.staff_user)
 
         blood_request.refresh_from_db()
-        self.assertEqual(blood_request.status, BloodRequest.Status.FULFILLED)
+        self.assertEqual(
+            blood_request.status,
+            BloodRequest.Status.FULFILLED,
+        )
 
     def test_issue_records_who_issued_it(self):
         self.make_donation("O+", 5, 10)
@@ -107,7 +127,10 @@ class IssueBloodServiceTests(BloodIssueTestBase):
             allocation.donation_id: allocation.units
             for allocation in BloodIssueAllocation.objects.filter(issue=issue)
         }
-        self.assertEqual(taken, {early_batch.pk: 2, late_batch.pk: 1})
+        self.assertEqual(
+            taken,
+            {early_batch.pk: 2, late_batch.pk: 1},
+        )
 
     def test_expired_units_are_never_issued(self):
         self.make_donation("B+", 10, -1)
@@ -125,9 +148,54 @@ class IssueBloodServiceTests(BloodIssueTestBase):
             issue_blood(blood_request, self.staff_user)
 
         blood_request.refresh_from_db()
-        self.assertEqual(blood_request.status, BloodRequest.Status.APPROVED)
-        self.assertFalse(BloodIssue.objects.filter(blood_request=blood_request).exists())
+        self.assertEqual(
+            blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
+        self.assertFalse(
+            BloodIssue.objects.filter(
+                blood_request=blood_request
+            ).exists()
+        )
         self.assertEqual(get_available_units("AB-"), 1)
+
+    # E6-S6: Transaction rollback test
+    def test_allocation_failure_rolls_back_entire_transaction(self):
+        donation = self.make_donation("O+", 5, 10)
+        blood_request = self.make_request("O+", 2)
+
+        original_stock = get_available_units("O+")
+
+        with patch(
+            "issues.issuance.BloodIssueAllocation.objects.create",
+            side_effect=RuntimeError("Simulated allocation failure"),
+        ):
+            with self.assertRaises(RuntimeError):
+                issue_blood(blood_request, self.staff_user)
+
+        blood_request.refresh_from_db()
+
+        self.assertEqual(
+            blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
+
+        self.assertFalse(
+            BloodIssue.objects.filter(
+                blood_request=blood_request
+            ).exists()
+        )
+
+        self.assertFalse(
+            BloodIssueAllocation.objects.filter(
+                donation=donation
+            ).exists()
+        )
+
+        self.assertEqual(
+            get_available_units("O+"),
+            original_stock,
+        )
 
     def test_stock_never_goes_negative_across_issues(self):
         self.make_donation("O-", 5, 10)
@@ -150,12 +218,21 @@ class IssueBloodServiceTests(BloodIssueTestBase):
         with self.assertRaises(RequestNotApproved):
             issue_blood(blood_request, self.staff_user)
 
-        self.assertEqual(BloodIssue.objects.filter(blood_request=blood_request).count(), 1)
+        self.assertEqual(
+            BloodIssue.objects.filter(
+                blood_request=blood_request
+            ).count(),
+            1,
+        )
         self.assertEqual(get_available_units("O+"), 3)
 
     def test_pending_request_cannot_be_issued(self):
         self.make_donation("O+", 5, 10)
-        blood_request = self.make_request("O+", 2, status=BloodRequest.Status.PENDING)
+        blood_request = self.make_request(
+            "O+",
+            2,
+            status=BloodRequest.Status.PENDING,
+        )
 
         with self.assertRaises(RequestNotApproved):
             issue_blood(blood_request, self.staff_user)
@@ -164,7 +241,11 @@ class IssueBloodServiceTests(BloodIssueTestBase):
 
     def test_rejected_request_cannot_be_issued(self):
         self.make_donation("O+", 5, 10)
-        blood_request = self.make_request("O+", 2, status=BloodRequest.Status.REJECTED)
+        blood_request = self.make_request(
+            "O+",
+            2,
+            status=BloodRequest.Status.REJECTED,
+        )
 
         with self.assertRaises(RequestNotApproved):
             issue_blood(blood_request, self.staff_user)
@@ -172,7 +253,12 @@ class IssueBloodServiceTests(BloodIssueTestBase):
         self.assertEqual(get_available_units("O+"), 5)
 
     def test_pending_donations_are_not_issued(self):
-        self.make_donation("O+", 4, 10, status=Donation.DonationStatus.PENDING)
+        self.make_donation(
+            "O+",
+            4,
+            10,
+            status=Donation.DonationStatus.PENDING,
+        )
         blood_request = self.make_request("O+", 1)
 
         with self.assertRaises(InsufficientStock):
@@ -198,13 +284,22 @@ class IssueViewTests(BloodIssueTestBase):
         super().setUp()
         self.make_donation("O+", 5, 10)
         self.blood_request = self.make_request("O+", 2)
-        self.issue_url = reverse("issues:issue", args=[self.blood_request.request_id])
+        self.issue_url = reverse(
+            "issues:issue",
+            args=[self.blood_request.request_id],
+        )
 
     def login_staff(self):
-        self.client.login(username="issuestaff", password="testpass123")
+        self.client.login(
+            username="issuestaff",
+            password="testpass123",
+        )
 
     def login_hospital(self):
-        self.client.login(username="issuehospital", password="testpass123")
+        self.client.login(
+            username="issuehospital",
+            password="testpass123",
+        )
 
     def test_staff_can_open_issue_page(self):
         self.login_staff()
@@ -220,7 +315,10 @@ class IssueViewTests(BloodIssueTestBase):
         self.client.get(self.issue_url)
 
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
         self.assertEqual(get_available_units("O+"), 5)
 
     def test_staff_post_issues_blood_and_redirects(self):
@@ -231,18 +329,27 @@ class IssueViewTests(BloodIssueTestBase):
         self.assertRedirects(response, self.issue_url)
 
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.FULFILLED)
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.FULFILLED,
+        )
         self.assertEqual(get_available_units("O+"), 3)
 
     def test_post_for_pending_request_shows_error_and_issues_nothing(self):
         self.login_staff()
-        pending = self.make_request("O+", 1, status=BloodRequest.Status.PENDING)
+        pending = self.make_request(
+            "O+",
+            1,
+            status=BloodRequest.Status.PENDING,
+        )
         url = reverse("issues:issue", args=[pending.request_id])
 
         response = self.client.post(url, follow=True)
 
         self.assertContains(response, "is not Approved")
-        self.assertFalse(BloodIssue.objects.filter(blood_request=pending).exists())
+        self.assertFalse(
+            BloodIssue.objects.filter(blood_request=pending).exists()
+        )
 
     def test_hospital_user_cannot_open_issue_page(self):
         self.login_hospital()
@@ -258,7 +365,10 @@ class IssueViewTests(BloodIssueTestBase):
 
         self.assertEqual(response.status_code, 403)
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
 
     def test_anonymous_user_is_redirected_to_login(self):
         response = self.client.post(self.issue_url)
@@ -288,10 +398,16 @@ class IssueApiTests(BloodIssueTestBase):
         self.blood_request = self.make_request("O+", 2)
 
     def login_staff(self):
-        self.client.login(username="issuestaff", password="testpass123")
+        self.client.login(
+            username="issuestaff",
+            password="testpass123",
+        )
 
     def login_hospital(self):
-        self.client.login(username="issuehospital", password="testpass123")
+        self.client.login(
+            username="issuehospital",
+            password="testpass123",
+        )
 
     def test_route_is_exactly_api_issues(self):
         self.assertEqual(reverse("api-issues"), "/api/issues")
@@ -304,7 +420,10 @@ class IssueApiTests(BloodIssueTestBase):
 
         self.assertEqual(response.status_code, 401)
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
 
     def test_hospital_user_gets_403_and_nothing_is_issued(self):
         self.login_hospital()
@@ -316,7 +435,10 @@ class IssueApiTests(BloodIssueTestBase):
 
         self.assertEqual(response.status_code, 403)
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
         self.assertEqual(get_available_units("O+"), 5)
 
     def test_get_is_not_allowed(self):
@@ -342,7 +464,10 @@ class IssueApiTests(BloodIssueTestBase):
         self.assertTrue(body["issue_id"])
 
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.FULFILLED)
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.FULFILLED,
+        )
         self.assertEqual(get_available_units("O+"), 3)
 
     def test_staff_can_issue_with_json_body(self):
@@ -377,7 +502,11 @@ class IssueApiTests(BloodIssueTestBase):
 
     def test_pending_request_returns_409_and_issues_nothing(self):
         self.login_staff()
-        pending = self.make_request("O+", 1, status=BloodRequest.Status.PENDING)
+        pending = self.make_request(
+            "O+",
+            1,
+            status=BloodRequest.Status.PENDING,
+        )
 
         response = self.client.post(
             reverse("api-issues"),
@@ -385,8 +514,13 @@ class IssueApiTests(BloodIssueTestBase):
         )
 
         self.assertEqual(response.status_code, 409)
-        self.assertEqual(response.json()["error"], "request_not_approved")
-        self.assertFalse(BloodIssue.objects.filter(blood_request=pending).exists())
+        self.assertEqual(
+            response.json()["error"],
+            "request_not_approved",
+        )
+        self.assertFalse(
+            BloodIssue.objects.filter(blood_request=pending).exists()
+        )
 
     def test_insufficient_stock_returns_409_and_request_stays_approved(self):
         self.login_staff()
@@ -398,7 +532,10 @@ class IssueApiTests(BloodIssueTestBase):
         )
 
         self.assertEqual(response.status_code, 409)
-        self.assertEqual(response.json()["error"], "insufficient_stock")
+        self.assertEqual(
+            response.json()["error"],
+            "insufficient_stock",
+        )
         big.refresh_from_db()
         self.assertEqual(big.status, BloodRequest.Status.APPROVED)
         self.assertEqual(get_available_units("O+"), 5)
@@ -407,19 +544,30 @@ class IssueApiTests(BloodIssueTestBase):
         self.login_staff()
         url = reverse("api-issues")
 
-        first = self.client.post(url, {"request_id": self.blood_request.request_id})
-        second = self.client.post(url, {"request_id": self.blood_request.request_id})
+        first = self.client.post(
+            url,
+            {"request_id": self.blood_request.request_id},
+        )
+        second = self.client.post(
+            url,
+            {"request_id": self.blood_request.request_id},
+        )
 
         self.assertEqual(first.status_code, 201)
         self.assertEqual(second.status_code, 409)
         self.assertEqual(
-            BloodIssue.objects.filter(blood_request=self.blood_request).count(),
+            BloodIssue.objects.filter(
+                blood_request=self.blood_request
+            ).count(),
             1,
         )
 
     def test_session_post_without_csrf_token_is_rejected(self):
         csrf_client = Client(enforce_csrf_checks=True)
-        csrf_client.login(username="issuestaff", password="testpass123")
+        csrf_client.login(
+            username="issuestaff",
+            password="testpass123",
+        )
 
         response = csrf_client.post(
             reverse("api-issues"),
@@ -428,17 +576,10 @@ class IssueApiTests(BloodIssueTestBase):
 
         self.assertEqual(response.status_code, 403)
         self.blood_request.refresh_from_db()
-        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
-
-from datetime import timedelta
-
-from django.core.exceptions import ValidationError
-from django.test import TestCase
-from django.utils import timezone
-
-from donors.models import Donor
-from donations.models import Donation
-from issues.services import validate_stock_for_issue
+        self.assertEqual(
+            self.blood_request.status,
+            BloodRequest.Status.APPROVED,
+        )
 
 
 class StockValidationTests(TestCase):
@@ -482,4 +623,124 @@ class StockValidationTests(TestCase):
     def test_rejects_negative_requested_units(self):
         with self.assertRaises(ValidationError):
             validate_stock_for_issue("O+", -2)
+class ConcurrentIssuanceTests(TransactionTestCase):
+    """E6-S6: concurrent requests must never overspend blood stock."""
 
+    reset_sequences = True
+
+    def setUp(self):
+        self.today = timezone.localdate()
+
+        staff_group = Group.objects.create(name="Concurrent Blood Bank Staff")
+        hospital_group = Group.objects.create(name="Concurrent Hospital Staff")
+
+        self.staff_user = User.objects.create_user(
+            username="concurrent_staff",
+            password="testpass123",
+        )
+        self.staff_user.groups.add(staff_group)
+
+        self.hospital_user = User.objects.create_user(
+            username="concurrent_hospital",
+            password="testpass123",
+        )
+        self.hospital_user.groups.add(hospital_group)
+
+        donor = Donor.objects.create(
+            full_name="Concurrent Test Donor",
+            date_of_birth="1995-01-01",
+            blood_group="O+",
+            phone_number="8999999999",
+            address="Bengaluru",
+        )
+
+        Donation.objects.create(
+            donor=donor,
+            donation_date=self.today,
+            quantity_units=5,
+            expiry_date=self.today + timedelta(days=10),
+            donation_status=Donation.DonationStatus.ACCEPTED,
+        )
+
+        self.request_one = self.make_request("O+", 4, "concurrent_request_1")
+        self.request_two = self.make_request("O+", 4, "concurrent_request_2")
+
+    def make_request(self, blood_group, units, request_id):
+        return BloodRequest.objects.create(
+            requested_by=self.hospital_user,
+            hospital_name="Concurrent Hospital",
+            patient_name=request_id,
+            blood_group=blood_group,
+            units_required=units,
+            reason="Concurrency test",
+            status=BloodRequest.Status.APPROVED,
+        )
+
+    def test_concurrent_issues_do_not_overspend_stock(self):
+        if connection.vendor != "postgresql":
+            self.skipTest("This concurrency test requires PostgreSQL.")
+
+        barrier = threading.Barrier(2)
+        results = Queue()
+
+        def issue_in_thread(request_id):
+            close_old_connections()
+
+            try:
+                blood_request = BloodRequest.objects.get(pk=request_id)
+                staff_user = User.objects.get(pk=self.staff_user.pk)
+
+                barrier.wait(timeout=10)
+
+                issue_blood(blood_request, staff_user)
+                results.put("SUCCESS")
+
+            except InsufficientStock:
+                results.put("INSUFFICIENT_STOCK")
+
+            except Exception as exc:
+                results.put(f"ERROR: {type(exc).__name__}: {exc}")
+
+            finally:
+                close_old_connections()
+
+        threads = [
+            threading.Thread(
+                target=issue_in_thread,
+                args=(self.request_one.pk,),
+            ),
+            threading.Thread(
+                target=issue_in_thread,
+                args=(self.request_two.pk,),
+            ),
+        ]
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join(timeout=30)
+
+        self.assertTrue(
+            all(not thread.is_alive() for thread in threads),
+            "Concurrent issuance threads did not finish.",
+        )
+
+        outcomes = [results.get(timeout=5), results.get(timeout=5)]
+
+        self.assertEqual(outcomes.count("SUCCESS"), 1, outcomes)
+        self.assertEqual(outcomes.count("INSUFFICIENT_STOCK"), 1, outcomes)
+
+        self.assertEqual(get_available_units("O+"), 1)
+
+        self.assertEqual(BloodIssue.objects.count(), 1)
+
+        self.request_one.refresh_from_db()
+        self.request_two.refresh_from_db()
+
+        fulfilled_count = sum(
+            request.status == BloodRequest.Status.FULFILLED
+            for request in (self.request_one, self.request_two)
+        )
+
+        self.assertEqual(fulfilled_count, 1)
