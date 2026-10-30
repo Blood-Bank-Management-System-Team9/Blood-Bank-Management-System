@@ -6,7 +6,7 @@ from . import views
 app_name = "blood_requests"
 
 
-# NOTE: "new/" and "pending/" must stay ABOVE "<str:request_id>/",
+# NOTE: "new/", "pending/", "mine/" and "all/" must stay ABOVE "<str:request_id>/",
 # otherwise Django would treat the words "new"/"pending" as a request ID.
 urlpatterns = [
     path(
@@ -18,6 +18,16 @@ urlpatterns = [
         "pending/",
         views.pending_requests,
         name="pending",
+    ),
+    path(
+        "mine/",
+        views.my_requests,
+        name="mine",
+    ),
+    path(
+        "all/",
+        views.all_requests,
+        name="all",
     ),
     path(
         "<str:request_id>/",

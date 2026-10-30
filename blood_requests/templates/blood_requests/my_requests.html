@@ -1,0 +1,82 @@
+{% extends "blood_requests/review_base.html" %}
+
+{% block title %}My Blood Requests | BBMS{% endblock %}
+
+{% block nav_links %}
+
+    <a href="{% url 'blood_search:availability' %}">Blood Search</a>
+
+    <a href="{% url 'blood_requests:submit' %}">Request Blood</a>
+
+    <a href="{% url 'blood_requests:mine' %}" class="active">My Requests</a>
+
+{% endblock %}
+
+{% block content %}
+
+<h1>My Blood Requests</h1>
+
+<p class="page-description">
+    Track the current status of the blood requests you have submitted.
+    Requests start as <strong>Pending</strong> and are updated when blood bank staff review or fulfil them.
+</p>
+
+<div class="filter-bar">
+    <a href="{% url 'blood_requests:mine' %}" class="{% if not selected_status %}active{% endif %}">All</a>
+    {% for status in statuses %}
+        <a href="{% url 'blood_requests:mine' %}?status={{ status }}"
+           class="{% if status == selected_status %}active{% endif %}">{{ status }}</a>
+    {% endfor %}
+</div>
+
+{% if blood_requests %}
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Patient</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Staff Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blood_request in blood_requests %}
+                    <tr>
+                        <td>{{ blood_request.request_id }}</td>
+                        <td>{{ blood_request.blood_group }}</td>
+                        <td>{{ blood_request.units_required }}</td>
+                        <td>{{ blood_request.patient_name }}</td>
+                        <td>{{ blood_request.created_at|date:"d M Y, H:i" }}</td>
+                        <td><span class="badge {{ blood_request.status }}">{{ blood_request.status }}</span></td>
+                        <td>
+                            {% if blood_request.review_note %}
+                                {{ blood_request.review_note }}
+                            {% else %}
+                                <span class="muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+
+    <p class="empty">
+        {% if selected_status %}
+            You have no {{ selected_status|lower }} requests.
+        {% else %}
+            You have not submitted any blood requests yet.
+            <a class="view-link" href="{% url 'blood_requests:submit' %}">Request blood</a>
+        {% endif %}
+    </p>
+
+{% endif %}
+
+{% endblock %}
