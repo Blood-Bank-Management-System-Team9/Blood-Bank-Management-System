@@ -43,7 +43,7 @@ def submit_request(request):
                 f"Status: {blood_request.status}.",
             )
 
-            return redirect("blood_requests:submit")
+            return redirect("blood_requests:mine")
 
     else:
         initial = {}
@@ -151,5 +151,82 @@ def request_detail(request, request_id):
             "form": form,
             "available_units": available_units,
             "stock_is_short": available_units < blood_request.units_required,
+        },
+    )
+
+def _status_filter(request):
+    """
+    Read an optional ?status= filter. Unknown values are ignored.
+    """
+    status = request.GET.get("status", "").strip()
+
+    if status in BloodRequest.Status.values:
+        return status
+
+    return ""
+
+
+@login_required
+def my_requests(request):
+    """
+    E4-S3: the requesting user views the current status of the
+    requests they submitted (FR-6.6).
+
+    Users only ever see their own requests.
+    """
+    if not can_submit_request(request.user):
+        raise PermissionDenied(
+            "You are not authorized to view blood requests."
+        )
+
+    status = _status_filter(request)
+
+    requests_qs = BloodRequest.objects.filter(
+        requested_by=request.user,
+    ).order_by("-created_at")
+
+    if status:
+        requests_qs = requests_qs.filter(status=status)
+
+    return render(
+        request,
+        "blood_requests/my_requests.html",
+        {
+            "blood_requests": requests_qs,
+            "statuses": BloodRequest.Status.values,
+            "selected_status": status,
+        },
+    )
+
+
+@login_required
+def all_requests(request):
+    """
+    E4-S3: Blood Bank Staff review all submitted requests, in every
+    status, with an optional status filter (FR-6.5).
+    """
+    if not can_review_request(request.user):
+        raise PermissionDenied(
+            "You are not authorized to review blood requests."
+        )
+
+    status = _status_filter(request)
+
+    requests_qs = (
+        BloodRequest.objects.all()
+        .select_related("requested_by", "reviewed_by")
+        .order_by("-created_at")
+    )
+
+    if status:
+        requests_qs = requests_qs.filter(status=status)
+
+    return render(
+        request,
+        "blood_requests/all_requests.html",
+        {
+            "blood_requests": requests_qs,
+            "statuses": BloodRequest.Status.values,
+            "selected_status": status,
         },
     )

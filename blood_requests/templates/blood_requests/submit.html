@@ -316,6 +316,10 @@
             Request Blood
         </a>
 
+        <a href="{% url 'blood_requests:mine' %}">
+            My Requests
+        </a>
+
         <form method="post"
               action="{% url 'accounts:logout' %}"
               class="logout-form">

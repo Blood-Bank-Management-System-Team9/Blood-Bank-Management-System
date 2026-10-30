@@ -173,6 +173,21 @@
         .btn.reject { background: #981b3f; }
         .btn.reject:hover { background: #801632; }
 
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
+        .filter-bar a {
+            padding: 6px 12px;
+            border: 1px solid #ead9de;
+            border-radius: 16px;
+            color: #5f5659;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .filter-bar a:hover { color: #981b3f; background: #fbeef2; }
+        .filter-bar a.active { color: white; background: #981b3f; border-color: #981b3f; }
+
+        .muted { color: #8a7e82; }
+
         .back-link { display: inline-block; margin-top: 24px; color: #981b3f; font-weight: 700; text-decoration: none; }
 
         @media (max-width: 900px) {
@@ -193,6 +208,8 @@
 
     <div class="nav-links">
 
+        {% block nav_links %}
+
         <a href="{% url 'donors:register' %}">Register Donor</a>
 
         <a href="{% url 'donors:search' %}">Search Donors</a>
@@ -201,7 +218,11 @@
 
         <a href="{% url 'blood_search:availability' %}">Blood Search</a>
 
-        <a href="{% url 'blood_requests:pending' %}" class="active">Review Requests</a>
+        <a href="{% url 'blood_requests:pending' %}" class="{% block review_nav_class %}active{% endblock %}">Review Requests</a>
+
+        <a href="{% url 'blood_requests:all' %}" class="{% block all_nav_class %}{% endblock %}">All Requests</a>
+
+        {% endblock %}
 
         <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
             {% csrf_token %}
