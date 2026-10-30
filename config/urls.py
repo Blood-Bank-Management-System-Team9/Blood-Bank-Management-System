@@ -19,6 +19,7 @@ from django.urls import include, path
 
 from donors import views as donor_views
 from inventory import views as inventory_views
+from issues import views as issues_views
 
 
 urlpatterns = [
@@ -29,6 +30,7 @@ urlpatterns = [
     path("blood-search/", include("blood_search.urls")),
     path("requests/", include("blood_requests.urls")),
     path("blood-issue/", include("issues.urls")),
+    path("api/issues", issues_views.issue_blood_api, name="api-issues"),
     path("api/", include("donations.urls")),
     path(
         "api/donors/<str:donor_id>",

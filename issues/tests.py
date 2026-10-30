@@ -1,7 +1,8 @@
+import json
 from datetime import timedelta
 
 from django.contrib.auth.models import Group, User
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -273,3 +274,158 @@ class IssueViewTests(BloodIssueTestBase):
 
         self.assertContains(response, "Taken From")
         self.assertContains(response, "Issue Record")
+
+
+class IssueApiTests(BloodIssueTestBase):
+    """
+    POST /api/issues (SAD: direct issuing endpoint, TC-ISS-02 / TC-SEC-02).
+    Same rules as the issue page.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.make_donation("O+", 5, 10)
+        self.blood_request = self.make_request("O+", 2)
+
+    def login_staff(self):
+        self.client.login(username="issuestaff", password="testpass123")
+
+    def login_hospital(self):
+        self.client.login(username="issuehospital", password="testpass123")
+
+    def test_route_is_exactly_api_issues(self):
+        self.assertEqual(reverse("api-issues"), "/api/issues")
+
+    def test_anonymous_user_gets_401_and_nothing_is_issued(self):
+        response = self.client.post(
+            reverse("api-issues"),
+            {"request_id": self.blood_request.request_id},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.blood_request.refresh_from_db()
+        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
+
+    def test_hospital_user_gets_403_and_nothing_is_issued(self):
+        self.login_hospital()
+
+        response = self.client.post(
+            reverse("api-issues"),
+            {"request_id": self.blood_request.request_id},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.blood_request.refresh_from_db()
+        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
+        self.assertEqual(get_available_units("O+"), 5)
+
+    def test_get_is_not_allowed(self):
+        self.login_staff()
+
+        response = self.client.get(reverse("api-issues"))
+
+        self.assertEqual(response.status_code, 405)
+
+    def test_staff_can_issue_with_form_data(self):
+        self.login_staff()
+
+        response = self.client.post(
+            reverse("api-issues"),
+            {"request_id": self.blood_request.request_id},
+        )
+
+        self.assertEqual(response.status_code, 201)
+        body = response.json()
+        self.assertEqual(body["request_id"], self.blood_request.request_id)
+        self.assertEqual(body["units_issued"], 2)
+        self.assertEqual(body["blood_group"], "O+")
+        self.assertTrue(body["issue_id"])
+
+        self.blood_request.refresh_from_db()
+        self.assertEqual(self.blood_request.status, BloodRequest.Status.FULFILLED)
+        self.assertEqual(get_available_units("O+"), 3)
+
+    def test_staff_can_issue_with_json_body(self):
+        self.login_staff()
+
+        response = self.client.post(
+            reverse("api-issues"),
+            data=json.dumps({"request_id": self.blood_request.request_id}),
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(get_available_units("O+"), 3)
+
+    def test_missing_request_id_returns_400(self):
+        self.login_staff()
+
+        response = self.client.post(reverse("api-issues"), {})
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"], "request_id_required")
+
+    def test_unknown_request_returns_404(self):
+        self.login_staff()
+
+        response = self.client.post(
+            reverse("api-issues"),
+            {"request_id": "NOSUCHID12"},
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_pending_request_returns_409_and_issues_nothing(self):
+        self.login_staff()
+        pending = self.make_request("O+", 1, status=BloodRequest.Status.PENDING)
+
+        response = self.client.post(
+            reverse("api-issues"),
+            {"request_id": pending.request_id},
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "request_not_approved")
+        self.assertFalse(BloodIssue.objects.filter(blood_request=pending).exists())
+
+    def test_insufficient_stock_returns_409_and_request_stays_approved(self):
+        self.login_staff()
+        big = self.make_request("O+", 10)
+
+        response = self.client.post(
+            reverse("api-issues"),
+            {"request_id": big.request_id},
+        )
+
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "insufficient_stock")
+        big.refresh_from_db()
+        self.assertEqual(big.status, BloodRequest.Status.APPROVED)
+        self.assertEqual(get_available_units("O+"), 5)
+
+    def test_second_post_for_same_request_returns_409(self):
+        self.login_staff()
+        url = reverse("api-issues")
+
+        first = self.client.post(url, {"request_id": self.blood_request.request_id})
+        second = self.client.post(url, {"request_id": self.blood_request.request_id})
+
+        self.assertEqual(first.status_code, 201)
+        self.assertEqual(second.status_code, 409)
+        self.assertEqual(
+            BloodIssue.objects.filter(blood_request=self.blood_request).count(),
+            1,
+        )
+
+    def test_session_post_without_csrf_token_is_rejected(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.login(username="issuestaff", password="testpass123")
+
+        response = csrf_client.post(
+            reverse("api-issues"),
+            {"request_id": self.blood_request.request_id},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.blood_request.refresh_from_db()
+        self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
