@@ -107,6 +107,14 @@
 
 {% endif %}
 
+{% if blood_request.status == "Approved" or blood_request.status == "Fulfilled" %}
+    <h2>Issue</h2>
+    <a class="btn approve" style="display:inline-block;text-decoration:none;"
+       href="{% url 'issues:issue' request_id=blood_request.request_id %}">
+        Open issue page
+    </a>
+{% endif %}
+
 <a class="back-link" href="{% url 'blood_requests:pending' %}">&larr; Back to pending requests</a>
 
 {% endblock %}
