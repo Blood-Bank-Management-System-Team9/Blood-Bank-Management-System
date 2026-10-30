@@ -432,18 +432,6 @@ class IssueApiTests(BloodIssueTestBase):
         self.blood_request.refresh_from_db()
         self.assertEqual(self.blood_request.status, BloodRequest.Status.APPROVED)
 
-
-from datetime import timedelta
-
-from django.core.exceptions import ValidationError
-from django.test import TestCase
-from django.utils import timezone
-
-from donors.models import Donor
-from donations.models import Donation
-from issues.services import validate_stock_for_issue
-
-
 class StockValidationTests(TestCase):
     def setUp(self):
         self.donor = Donor.objects.create(
@@ -485,5 +473,3 @@ class StockValidationTests(TestCase):
     def test_rejects_negative_requested_units(self):
         with self.assertRaises(ValidationError):
             validate_stock_for_issue("O+", -2)
-
-
