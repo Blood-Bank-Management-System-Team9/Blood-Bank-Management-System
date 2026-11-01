@@ -38,4 +38,5 @@ urlpatterns = [
         name="donor-history",
     ),
     path("inventory/", include("inventory.urls")),
+    path("reports/", include("reports.urls")),
 ]

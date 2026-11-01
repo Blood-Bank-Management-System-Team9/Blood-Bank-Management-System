@@ -222,6 +222,8 @@
 
         <a href="{% url 'blood_requests:all' %}" class="{% block all_nav_class %}{% endblock %}">All Requests</a>
 
+        <a href="{% url 'reports:home' %}" class="{% block reports_nav_class %}{% endblock %}">Reports</a>
+
         {% endblock %}
 
         <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
