@@ -1,0 +1,243 @@
+{% extends "blood_requests/review_base.html" %}
+
+{% block title %}Reports and History | BBMS{% endblock %}
+
+{% block review_nav_class %}{% endblock %}
+{% block reports_nav_class %}active{% endblock %}
+
+{% block content %}
+
+<h1>Reports and History</h1>
+
+<p class="page-description">
+    Donation, request and issue history, current stock, and totals for the period
+    <strong>{{ filters.start_date|date:"d M Y" }}</strong> to <strong>{{ filters.end_date|date:"d M Y" }}</strong>.
+</p>
+
+
+<form method="get">
+
+    {% for error in form.non_field_errors %}
+        <div class="message error">{{ error }}</div>
+    {% endfor %}
+
+    <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; margin-bottom:10px;">
+
+        <div>
+            <label for="{{ form.start_date.id_for_label }}">{{ form.start_date.label }}</label>
+            {{ form.start_date }}
+        </div>
+
+        <div>
+            <label for="{{ form.end_date.id_for_label }}">{{ form.end_date.label }}</label>
+            {{ form.end_date }}
+        </div>
+
+        <div>
+            <label for="{{ form.blood_group.id_for_label }}">{{ form.blood_group.label }}</label>
+            {{ form.blood_group }}
+        </div>
+
+        <div>
+            <label for="{{ form.donation_status.id_for_label }}">{{ form.donation_status.label }}</label>
+            {{ form.donation_status }}
+        </div>
+
+        <div>
+            <label for="{{ form.request_status.id_for_label }}">{{ form.request_status.label }}</label>
+            {{ form.request_status }}
+        </div>
+
+        <div>
+            <button type="submit" class="btn approve">Apply</button>
+            <a class="back-link" href="{% url 'reports:home' %}" style="margin-left:12px;">Reset</a>
+        </div>
+
+    </div>
+
+</form>
+
+
+<h2>Summary</h2>
+
+<dl class="detail-grid">
+    <div>
+        <dt>Donations Accepted</dt>
+        <dd>{{ summary.donations_accepted }}</dd>
+    </div>
+    <div>
+        <dt>Units Donated</dt>
+        <dd>{{ summary.units_donated }}</dd>
+    </div>
+    <div>
+        <dt>Issues Made</dt>
+        <dd>{{ summary.issues_count }}</dd>
+    </div>
+    <div>
+        <dt>Units Issued</dt>
+        <dd>{{ summary.units_issued }}</dd>
+    </div>
+    <div>
+        <dt>Requests Received</dt>
+        <dd>{{ summary.requests_total }}</dd>
+    </div>
+    <div class="full">
+        <dt>Requests by Status</dt>
+        <dd>
+            {% for status, count in summary.requests_by_status.items %}
+                <span class="badge {{ status }}">{{ status }}: {{ count }}</span>
+            {% endfor %}
+        </dd>
+    </div>
+</dl>
+
+
+<h2>Blood Group Summary</h2>
+
+<p class="page-description">
+    "Donated" and "Issued" use the selected period. "Available Now" is the current stock.
+</p>
+
+<div class="table-wrap">
+    <table>
+        <thead>
+            <tr>
+                <th>Blood Group</th>
+                <th>Donated</th>
+                <th>Issued</th>
+                <th>Available Now</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in group_rows %}
+                <tr>
+                    <td>{{ row.blood_group }}</td>
+                    <td>{{ row.donated }}</td>
+                    <td>{{ row.issued }}</td>
+                    <td>{{ row.available }}</td>
+                    <td>
+                        {% if row.blood_group in low_stock %}
+                            <span class="badge Pending">Low stock</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<h2>Donation History</h2>
+
+{% if donations %}
+    <p class="page-description">Showing {{ donations|length }} of {{ donations_total }} donation(s).</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Donation ID</th>
+                    <th>Donor</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Donation Date</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for donation in donations %}
+                    <tr>
+                        <td>{{ donation.donation_id }}</td>
+                        <td>{{ donation.donor.full_name }}</td>
+                        <td>{{ donation.blood_group }}</td>
+                        <td>{{ donation.quantity_units }}</td>
+                        <td>{{ donation.donation_date|date:"d M Y" }}</td>
+                        <td>{{ donation.expiry_date|date:"d M Y" }}</td>
+                        <td>{{ donation.donation_status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="empty">No donations match these filters.</p>
+{% endif %}
+
+
+<h2>Request History</h2>
+
+{% if requests %}
+    <p class="page-description">Showing {{ requests|length }} of {{ requests_total }} request(s).</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Hospital / Organization</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blood_request in requests %}
+                    <tr>
+                        <td>{{ blood_request.request_id }}</td>
+                        <td>{{ blood_request.hospital_name }}</td>
+                        <td>{{ blood_request.blood_group }}</td>
+                        <td>{{ blood_request.units_required }}</td>
+                        <td>{{ blood_request.created_at|date:"d M Y, H:i" }}</td>
+                        <td><span class="badge {{ blood_request.status }}">{{ blood_request.status }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="empty">No requests match these filters.</p>
+{% endif %}
+
+
+<h2>Issue History</h2>
+
+{% if issues %}
+    <p class="page-description">Showing {{ issues|length }} of {{ issues_total }} issue(s).</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Issue ID</th>
+                    <th>Request ID</th>
+                    <th>Hospital / Organization</th>
+                    <th>Blood Group</th>
+                    <th>Units</th>
+                    <th>Issued By</th>
+                    <th>Issued At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for issue in issues %}
+                    <tr>
+                        <td>{{ issue.issue_id }}</td>
+                        <td>{{ issue.blood_request.request_id }}</td>
+                        <td>{{ issue.blood_request.hospital_name }}</td>
+                        <td>{{ issue.blood_group }}</td>
+                        <td>{{ issue.units_issued }}</td>
+                        <td>{{ issue.issued_by.username|default:"Unknown" }}</td>
+                        <td>{{ issue.issued_at|date:"d M Y, H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="empty">No issues match these filters.</p>
+{% endif %}
+
+<p class="page-description">
+    Patient names are not shown in reports. Use the request detail page to view them.
+</p>
+
+{% endblock %}
