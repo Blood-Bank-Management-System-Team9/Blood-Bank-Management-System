@@ -1,0 +1,75 @@
+Name                                           Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------
+accounts\__init__.py                               0      0      0      0   100%
+accounts\admin.py                                  6      0      0      0   100%
+accounts\apps.py                                   6      0      0      0   100%
+accounts\decorators.py                            14      0      2      0   100%
+accounts\models.py                                11      1      0      0    91%   29
+accounts\signals.py                                8      0      2      0   100%
+accounts\urls.py                                   4      0      0      0   100%
+accounts\views.py                                  1      1      0      0     0%   1
+blood_requests\__init__.py                         0      0      0      0   100%
+blood_requests\admin.py                            8      0      0      0   100%
+blood_requests\apps.py                             4      0      0      0   100%
+blood_requests\forms.py                           24      0      2      0   100%
+blood_requests\models.py                          33      1      0      0    97%   112
+blood_requests\permissions.py                     24      3     10      3    82%   23, 26, 62
+blood_requests\services.py                        12      0      2      0   100%
+blood_requests\urls.py                             4      0      0      0   100%
+blood_requests\views.py                           82      0     30      2    98%   53->56, 112->144
+blood_search\__init__.py                           0      0      0      0   100%
+blood_search\admin.py                              1      0      0      0   100%
+blood_search\apps.py                               4      0      0      0   100%
+blood_search\models.py                             1      0      0      0   100%
+blood_search\services.py                           6      0      0      0   100%
+blood_search\urls.py                               4      0      0      0   100%
+blood_search\views.py                             23      1      8      1    94%   24
+donations\__init__.py                              0      0      0      0   100%
+donations\admin.py                                 1      0      0      0   100%
+donations\apps.py                                  4      0      0      0   100%
+donations\forms.py                                15      1      2      1    88%   39
+donations\models.py                               30      2      2      1    91%   25, 72
+donations\urls.py                                  4      0      0      0   100%
+donations\views.py                                31      7     10      2    63%   27, 53-61
+donors\__init__.py                                 0      0      0      0   100%
+donors\admin.py                                    1      0      0      0   100%
+donors\apps.py                                     4      0      0      0   100%
+donors\forms.py                                   10      0      0      0   100%
+donors\models.py                                  30      1      0      0    97%   78
+donors\urls.py                                     4      0      0      0   100%
+donors\views.py                                   49      1     18      3    94%   73->78, 95, 138->156
+inventory\__init__.py                              0      0      0      0   100%
+inventory\admin.py                                 1      0      0      0   100%
+inventory\apps.py                                  4      0      0      0   100%
+inventory\models.py                                1      0      0      0   100%
+inventory\services.py                             28      1      2      1    93%   29
+inventory\urls.py                                  4      0      0      0   100%
+inventory\views.py                                13      1      2      1    87%   26
+issues\__init__.py                                 0      0      0      0   100%
+issues\admin.py                                   23      5      0      0    78%   12, 15, 46, 49, 52
+issues\apps.py                                     4      0      0      0   100%
+issues\issuance.py                                39      1     12      2    94%   85->83, 108
+issues\management\__init__.py                      0      0      0      0   100%
+issues\management\commands\__init__.py             0      0      0      0   100%
+issues\management\commands\seed_perf_data.py      57     57      4      0     0%   1-182
+issues\models.py                                  28      2      0      0    93%   67, 95
+issues\permissions.py                              3      0      0      0   100%
+issues\services.py                                 9      0      4      0   100%
+issues\urls.py                                     4      0      0      0   100%
+issues\views.py                                   56      2     14      0    97%   71-72
+monitoring\__init__.py                             0      0      0      0   100%
+monitoring\admin.py                                1      0      0      0   100%
+monitoring\apps.py                                 4      0      0      0   100%
+monitoring\models.py                               1      0      0      0   100%
+monitoring\views.py                                1      1      0      0     0%   1
+reports\__init__.py                                0      0      0      0   100%
+reports\admin.py                                   1      0      0      0   100%
+reports\apps.py                                    4      0      0      0   100%
+reports\forms.py                                  21      0      2      0   100%
+reports\models.py                                  1      0      0      0   100%
+reports\permissions.py                             3      0      0      0   100%
+reports\services.py                               39      0     12      0   100%
+reports\urls.py                                    4      0      0      0   100%
+reports\views.py                                  28      0      4      0   100%
+------------------------------------------------------------------------------------------
+TOTAL                                            845     89    144     17    88%
