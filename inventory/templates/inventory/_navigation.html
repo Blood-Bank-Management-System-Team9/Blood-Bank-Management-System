@@ -1,0 +1,41 @@
+
+<nav class="top-nav">
+    <div class="nav-brand">BBMS</div>
+
+    <div class="nav-links">
+        {% if user.is_superuser %}
+            {% include "inventory/_staff_nav_links.html" %}
+        {% else %}
+            {% for role in user.groups.all %}
+                {% if role.name == "Blood Bank Staff" %}
+                    {% include "inventory/_staff_nav_links.html" %}
+
+                {% elif role.name == "Hospital Staff" %}
+                    <a href="{% url 'inventory:dashboard' %}"
+                       class="{% if request.resolver_match.view_name == 'inventory:dashboard' or request.resolver_match.view_name == 'home' %}active{% endif %}">Inventory</a>
+
+                    <a href="{% url 'blood_search:availability' %}"
+                       class="{% if request.resolver_match.view_name == 'blood_search:availability' %}active{% endif %}">Blood Search</a>
+
+                    <a href="{% url 'blood_requests:submit' %}"
+                       class="{% if request.resolver_match.view_name == 'blood_requests:submit' %}active{% endif %}">Request Blood</a>
+
+                    <a href="{% url 'blood_requests:mine' %}"
+                       class="{% if request.resolver_match.view_name == 'blood_requests:mine' %}active{% endif %}">My Requests</a>
+
+                {% elif role.name == "Administrator" %}
+                    <a href="{% url 'inventory:dashboard' %}">Inventory</a>
+                    <a href="{% url 'blood_search:availability' %}">Blood Search</a>
+                    <a href="{% url 'reports:home' %}">Reports</a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <form method="post"
+              action="{% url 'accounts:logout' %}"
+              class="logout-form">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</nav>

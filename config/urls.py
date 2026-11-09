@@ -16,14 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-
+from django.shortcuts import redirect
 from donors import views as donor_views
 from inventory import views as inventory_views
 from issues import views as issues_views
 
+def home(request):
+    if request.user.is_authenticated:
+        return redirect("inventory:dashboard")
+    return redirect("accounts:login")
 
 urlpatterns = [
     path("", inventory_views.inventory_dashboard, name="home"),
+    path("", home, name="home"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("donors/", include("donors.urls")),

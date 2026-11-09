@@ -1,0 +1,21 @@
+
+<a href="{% url 'donors:register' %}"
+   class="{% if request.resolver_match.view_name == 'donors:register' %}active{% endif %}">Register Donor</a>
+
+<a href="{% url 'donors:search' %}"
+   class="{% if request.resolver_match.view_name == 'donors:search' %}active{% endif %}">Search Donors</a>
+
+<a href="{% url 'inventory:dashboard' %}"
+   class="{% if request.resolver_match.view_name == 'inventory:dashboard' or request.resolver_match.view_name == 'home' %}active{% endif %}">Inventory</a>
+
+<a href="{% url 'blood_search:availability' %}"
+   class="{% if request.resolver_match.view_name == 'blood_search:availability' %}active{% endif %}">Blood Search</a>
+
+<a href="{% url 'blood_requests:pending' %}"
+   class="{% if request.resolver_match.view_name == 'blood_requests:pending' %}active{% endif %}">Review Requests</a>
+
+<a href="{% url 'blood_requests:all' %}"
+   class="{% if request.resolver_match.view_name == 'blood_requests:all' %}active{% endif %}">All Requests</a>
+
+<a href="{% url 'reports:home' %}"
+   class="{% if request.resolver_match.view_name == 'reports:home' %}active{% endif %}">Reports</a>

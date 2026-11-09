@@ -2,16 +2,6 @@
 
 {% block title %}My Blood Requests | BBMS{% endblock %}
 
-{% block nav_links %}
-
-    <a href="{% url 'blood_search:availability' %}">Blood Search</a>
-
-    <a href="{% url 'blood_requests:submit' %}">Request Blood</a>
-
-    <a href="{% url 'blood_requests:mine' %}" class="active">My Requests</a>
-
-{% endblock %}
-
 {% block content %}
 
 <h1>My Blood Requests</h1>

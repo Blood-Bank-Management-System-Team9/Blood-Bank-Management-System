@@ -288,54 +288,7 @@
 
 <body>
 
-<nav class="top-nav">
-
-    <div class="nav-brand">
-        BBMS
-    </div>
-
-    <div class="nav-links">
-
-        <a href="{% url 'donors:register' %}">
-            Register Donor
-        </a>
-
-        <a href="{% url 'donors:search' %}">
-            Search Donors
-        </a>
-
-        <a href="{% url 'inventory:dashboard' %}">
-            Inventory
-        </a>
-
-        <a href="{% url 'blood_search:availability' %}">
-            Blood Search
-        </a>
-
-        <a href="{% url 'blood_requests:submit' %}" class="active">
-            Request Blood
-        </a>
-
-        <a href="{% url 'blood_requests:mine' %}">
-            My Requests
-        </a>
-
-        <form method="post"
-              action="{% url 'accounts:logout' %}"
-              class="logout-form">
-
-            {% csrf_token %}
-
-            <button type="submit">
-                Logout
-            </button>
-
-        </form>
-
-    </div>
-
-</nav>
-
+{% include "inventory/_navigation.html" %}
 
 <div class="container">
 
