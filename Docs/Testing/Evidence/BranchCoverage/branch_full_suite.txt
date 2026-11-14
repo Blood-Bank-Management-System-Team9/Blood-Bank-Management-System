@@ -1,0 +1,373 @@
+python : Creating test database for alias 'default' 
+('file:memorydb_default?mode=memory&cache=shared')...
+At line:1 char:1
++ python -m coverage run --branch --source=accounts,donors,donations,in ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Creating test d...che=shared')...:String) 
+    [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+Found 131 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles
+  Apply all migrations: accounts, admin, auth, blood_requests, contenttypes, donations, donors, issues, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying accounts.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying blood_requests.0001_initial... OK
+  Applying blood_requests.0002_add_review_fields... OK
+  Applying donors.0001_initial... OK
+  Applying donations.0001_initial... OK
+  Applying issues.0001_initial... OK
+test_login_failure (accounts.tests.LoginLogoutTests.test_login_failure) ... ok
+test_login_success (accounts.tests.LoginLogoutTests.test_login_success) ... ok
+test_logout_clears_session 
+(accounts.tests.LoginLogoutTests.test_logout_clears_session) ... ok
+test_allowed_role_passes 
+(accounts.tests.RoleRequiredDecoratorTests.test_allowed_role_passes) ... ok
+test_disallowed_role_is_forbidden 
+(accounts.tests.RoleRequiredDecoratorTests.test_disallowed_role_is_forbidden) ... ok
+test_profile_auto_created 
+(accounts.tests.RoleRequiredDecoratorTests.test_profile_auto_created) ... ok
+test_hospital_cannot_open_all_requests (blood_requests.test_tracking.TrackRequestStatus
+Tests.test_hospital_cannot_open_all_requests)
+TC-SEC-02 / SEC-02: Hospital Staff cannot see other hospitals' ... ok
+test_hospital_does_not_see_other_hospitals_requests (blood_requests.test_tracking.Track
+RequestStatusTests.test_hospital_does_not_see_other_hospitals_requests)
+SEC-03 / SO-01: users only see their own requests. ... ok
+test_hospital_sees_own_requests_with_status (blood_requests.test_tracking.TrackRequestS
+tatusTests.test_hospital_sees_own_requests_with_status)
+TC-REQ-01 (track part) / FR-6.6: ... ok
+test_my_requests_status_filter 
+(blood_requests.test_tracking.TrackRequestStatusTests.test_my_requests_status_filter)
+Filtering My Requests by status shows only matching requests. ... ok
+test_script_in_review_note_is_escaped (blood_requests.test_tracking.TrackRequestStatusT
+ests.test_script_in_review_note_is_escaped)
+TC-SEC-06 (track part) / SEC-09: text is shown, never executed. ... ok
+test_staff_all_requests_status_filter (blood_requests.test_tracking.TrackRequestStatusT
+ests.test_staff_all_requests_status_filter) ... ok
+test_staff_cannot_open_my_requests (blood_requests.test_tracking.TrackRequestStatusTest
+s.test_staff_cannot_open_my_requests) ... ok
+test_staff_sees_all_requests_from_all_hospitals (blood_requests.test_tracking.TrackRequ
+estStatusTests.test_staff_sees_all_requests_from_all_hospitals)
+TC-REQ-01 step 5 / FR-6.5: ... ok
+test_status_reflects_approval_and_rejection (blood_requests.test_tracking.TrackRequestS
+tatusTests.test_status_reflects_approval_and_rejection)
+TC-ISS-01 (status part) / FR-6.6: ... ok
+test_submit_redirects_to_my_requests_showing_pending (blood_requests.test_tracking.Trac
+kRequestStatusTests.test_submit_redirects_to_my_requests_showing_pending)
+TC-REQ-01 steps 3-4: after submitting, the user lands on ... ok
+test_unauthenticated_users_are_redirected (blood_requests.test_tracking.TrackRequestSta
+tusTests.test_unauthenticated_users_are_redirected)
+TC-SEC-01 / SEC-01. ... ok
+test_unknown_status_filter_is_ignored (blood_requests.test_tracking.TrackRequestStatusT
+ests.test_unknown_status_filter_is_ignored) ... ok
+test_approved_request_leaves_pending_list (blood_requests.tests.ReviewBloodRequestTests
+.test_approved_request_leaves_pending_list) ... ok
+test_hospital_user_cannot_approve_own_request (blood_requests.tests.ReviewBloodRequestT
+ests.test_hospital_user_cannot_approve_own_request) ... ok
+test_hospital_user_cannot_open_details 
+(blood_requests.tests.ReviewBloodRequestTests.test_hospital_user_cannot_open_details) 
+... ok
+test_hospital_user_cannot_open_pending_list (blood_requests.tests.ReviewBloodRequestTes
+ts.test_hospital_user_cannot_open_pending_list) ... ok
+test_invalid_decision_changes_nothing 
+(blood_requests.tests.ReviewBloodRequestTests.test_invalid_decision_changes_nothing) 
+... ok
+test_missing_decision_changes_nothing 
+(blood_requests.tests.ReviewBloodRequestTests.test_missing_decision_changes_nothing) 
+... ok
+test_opening_details_does_not_change_status (blood_requests.tests.ReviewBloodRequestTes
+ts.test_opening_details_does_not_change_status) ... ok
+test_request_cannot_be_reviewed_twice 
+(blood_requests.tests.ReviewBloodRequestTests.test_request_cannot_be_reviewed_twice) 
+... ok
+test_review_post_without_csrf_token_is_rejected (blood_requests.tests.ReviewBloodReques
+tTests.test_review_post_without_csrf_token_is_rejected) ... ok
+test_staff_can_approve_request 
+(blood_requests.tests.ReviewBloodRequestTests.test_staff_can_approve_request) ... ok
+test_staff_can_open_request_details 
+(blood_requests.tests.ReviewBloodRequestTests.test_staff_can_open_request_details) ... 
+ok
+test_staff_can_reject_request 
+(blood_requests.tests.ReviewBloodRequestTests.test_staff_can_reject_request) ... ok
+test_staff_sees_pending_request_in_list 
+(blood_requests.tests.ReviewBloodRequestTests.test_staff_sees_pending_request_in_list) 
+... ok
+test_unauthenticated_user_is_redirected_to_login (blood_requests.tests.ReviewBloodReque
+stTests.test_unauthenticated_user_is_redirected_to_login) ... ok
+test_unknown_request_returns_404 
+(blood_requests.tests.ReviewBloodRequestTests.test_unknown_request_returns_404) ... ok
+test_user_without_role_group_cannot_review (blood_requests.tests.ReviewBloodRequestTest
+s.test_user_without_role_group_cannot_review)
+A user whose automatically created profile defaults to STAFF ... ok
+test_blood_bank_staff_cannot_submit_requests (blood_requests.tests.SubmitBloodRequestTe
+sts.test_blood_bank_staff_cannot_submit_requests)
+FR-6.1 / SEC-02: only requesting organizations submit requests. ... ok
+test_blood_group_is_prefilled_from_search (blood_requests.tests.SubmitBloodRequestTests
+.test_blood_group_is_prefilled_from_search)
+Coming from Blood Search (?blood_group=O+) pre-selects the group. ... ok
+test_each_request_gets_a_unique_id 
+(blood_requests.tests.SubmitBloodRequestTests.test_each_request_gets_a_unique_id)
+FR-6.3 / DR-04: each request is uniquely identified. ... ok
+test_hospital_role_via_user_profile_can_submit (blood_requests.tests.SubmitBloodRequest
+Tests.test_hospital_role_via_user_profile_can_submit)
+Users set up with accounts.UserProfile role HOSPITAL ... ok
+test_invalid_blood_group_is_rejected 
+(blood_requests.tests.SubmitBloodRequestTests.test_invalid_blood_group_is_rejected)
+DR-01: only standard blood groups are accepted. ... ok
+test_missing_blood_group_is_rejected 
+(blood_requests.tests.SubmitBloodRequestTests.test_missing_blood_group_is_rejected)
+FR-6.7 / FR-6.2: blood group is mandatory. ... ok
+test_missing_units_is_rejected 
+(blood_requests.tests.SubmitBloodRequestTests.test_missing_units_is_rejected)
+TC-REQ-02 / FR-6.7 / FR-6.2: ... ok
+test_past_required_by_date_is_rejected 
+(blood_requests.tests.SubmitBloodRequestTests.test_past_required_by_date_is_rejected)
+A required-by date in the past is not accepted. ... ok
+test_post_without_csrf_token_is_rejected 
+(blood_requests.tests.SubmitBloodRequestTests.test_post_without_csrf_token_is_rejected)
+TC-SEC-06 (request part) / SEC-07: ... ok
+test_sql_injection_text_is_stored_as_plain_text (blood_requests.tests.SubmitBloodReques
+tTests.test_sql_injection_text_is_stored_as_plain_text)
+TC-SEC-06 (request part) / SEC-08: ... ok
+test_unauthenticated_user_is_redirected 
+(blood_requests.tests.SubmitBloodRequestTests.test_unauthenticated_user_is_redirected)
+TC-SEC-01 (request part) / SEC-01. ... ok
+test_valid_request_is_created_as_pending 
+(blood_requests.tests.SubmitBloodRequestTests.test_valid_request_is_created_as_pending)
+TC-REQ-01 (submit part) / FR-6.1 - FR-6.4: ... ok
+test_zero_units_is_rejected 
+(blood_requests.tests.SubmitBloodRequestTests.test_zero_units_is_rejected)
+Boundary: at least 1 unit must be requested. ... ok
+test_availability_search_responds_within_3_seconds (blood_search.test_performance.Blood
+AvailabilitySearchPerformanceTests.test_availability_search_responds_within_3_seconds)
+TC-PERF-01 / NFR-01: ... ok
+test_blood_bank_staff_can_search 
+(blood_search.tests.BloodAvailabilitySearchTests.test_blood_bank_staff_can_search)
+FR-5.1: Blood Bank Staff are authorized users. ... ok
+test_expired_units_excluded_from_availability (blood_search.tests.BloodAvailabilitySear
+chTests.test_expired_units_excluded_from_availability)
+TC-MON-01 (search part) / FR-5.3 / SAFE-01: ... ok
+test_invalid_blood_group_shows_error 
+(blood_search.tests.BloodAvailabilitySearchTests.test_invalid_blood_group_shows_error)
+Invalid input is rejected with a message and no result. ... ok
+test_only_accepted_donations_are_counted (blood_search.tests.BloodAvailabilitySearchTes
+ts.test_only_accepted_donations_are_counted)
+BR-02: Pending and Rejected donations are not available stock. ... ok
+test_page_loads_without_search 
+(blood_search.tests.BloodAvailabilitySearchTests.test_page_loads_without_search)
+Opening the page without choosing a group shows the form only. ... ok
+test_search_available_blood_group 
+(blood_search.tests.BloodAvailabilitySearchTests.test_search_available_blood_group)
+TC-SRCH-01: ... ok
+test_search_unavailable_blood_group 
+(blood_search.tests.BloodAvailabilitySearchTests.test_search_unavailable_blood_group)
+TC-SRCH-02: ... ok
+test_unauthenticated_user_is_redirected (blood_search.tests.BloodAvailabilitySearchTest
+s.test_unauthenticated_user_is_redirected)
+TC-SEC-01 (search part) / SEC-01: ... ok
+test_unit_expiring_today_is_still_available (blood_search.tests.BloodAvailabilitySearch
+Tests.test_unit_expiring_today_is_still_available)
+Boundary: a unit whose expiry date is today has not expired yet. ... ok
+test_user_without_role_is_forbidden 
+(blood_search.tests.BloodAvailabilitySearchTests.test_user_without_role_is_forbidden)
+SEC-02: A logged-in user with no BBMS role cannot search. ... ok
+test_accepted_donation_details_are_available_for_inventory (donations.tests.DonationHis
+toryLinkTests.test_accepted_donation_details_are_available_for_inventory) ... ok
+test_donation_is_linked_to_correct_donor 
+(donations.tests.DonationHistoryLinkTests.test_donation_is_linked_to_correct_donor) 
+... ok
+test_accepted_donation_immediately_updates_inventory (donations.tests.ImmediateInventor
+yReflectionTests.test_accepted_donation_immediately_updates_inventory) ... ok
+test_inventory_dashboard_refresh_shows_latest_quantity (donations.tests.ImmediateInvent
+oryReflectionTests.test_inventory_dashboard_refresh_shows_latest_quantity) ... ok
+test_staff_views_correct_donor_donation_history 
+(donors.tests.DonorHistoryTests.test_staff_views_correct_donor_donation_history) ... ok
+test_invalid_donor_registration 
+(donors.tests.DonorRegistrationTests.test_invalid_donor_registration)
+TC-DON-02: ... ok
+test_mandatory_fields_are_required 
+(donors.tests.DonorRegistrationTests.test_mandatory_fields_are_required)
+FR-1.2: ... ok
+test_non_blood_bank_staff_cannot_register_donor 
+(donors.tests.DonorRegistrationTests.test_non_blood_bank_staff_cannot_register_donor)
+FR-1.1: ... ok
+test_unauthenticated_user_cannot_register_donor 
+(donors.tests.DonorRegistrationTests.test_unauthenticated_user_cannot_register_donor)
+FR-1.1: ... ok
+test_valid_donor_registration 
+(donors.tests.DonorRegistrationTests.test_valid_donor_registration)
+TC-DON-01: ... ok
+test_non_blood_bank_staff_cannot_search_donors 
+(donors.tests.DonorSearchUpdateTests.test_non_blood_bank_staff_cannot_search_donors)
+FR-1.4: ... ok
+test_non_blood_bank_staff_cannot_update_donor 
+(donors.tests.DonorSearchUpdateTests.test_non_blood_bank_staff_cannot_update_donor)
+FR-1.5: ... ok
+test_staff_can_search_donor_by_phone 
+(donors.tests.DonorSearchUpdateTests.test_staff_can_search_donor_by_phone)
+TC-DON-03 / FR-1.4: ... ok
+test_staff_can_update_donor_address 
+(donors.tests.DonorSearchUpdateTests.test_staff_can_update_donor_address)
+TC-DON-03 / FR-1.5: ... ok
+test_available_units_exclude_expired_donations 
+(inventory.tests.InventoryServiceTests.test_available_units_exclude_expired_donations) 
+... ok
+test_expired_donations_are_reported 
+(inventory.tests.InventoryServiceTests.test_expired_donations_are_reported) ... ok
+test_inventory_contains_all_blood_groups 
+(inventory.tests.InventoryServiceTests.test_inventory_contains_all_blood_groups) ... ok
+test_low_stock_groups_use_fewer_than_five_units (inventory.tests.InventoryServiceTests.
+test_low_stock_groups_use_fewer_than_five_units) ... ok
+test_near_expiry_donations_within_seven_days 
+(inventory.tests.InventoryServiceTests.test_near_expiry_donations_within_seven_days) 
+... ok
+test_blood_search_stock_drops_after_issue (issues.tests.BloodSearchReflectsIssuedStockT
+ests.test_blood_search_stock_drops_after_issue) ... ok
+test_anonymous_user_gets_401_and_nothing_is_issued 
+(issues.tests.IssueApiTests.test_anonymous_user_gets_401_and_nothing_is_issued) ... ok
+test_get_is_not_allowed (issues.tests.IssueApiTests.test_get_is_not_allowed) ... ok
+test_hospital_user_gets_403_and_nothing_is_issued 
+(issues.tests.IssueApiTests.test_hospital_user_gets_403_and_nothing_is_issued) ... ok
+test_insufficient_stock_returns_409_and_request_stays_approved (issues.tests.IssueApiTe
+sts.test_insufficient_stock_returns_409_and_request_stays_approved) ... ok
+test_missing_request_id_returns_400 
+(issues.tests.IssueApiTests.test_missing_request_id_returns_400) ... ok
+test_pending_request_returns_409_and_issues_nothing 
+(issues.tests.IssueApiTests.test_pending_request_returns_409_and_issues_nothing) ... ok
+test_route_is_exactly_api_issues 
+(issues.tests.IssueApiTests.test_route_is_exactly_api_issues) ... ok
+test_second_post_for_same_request_returns_409 
+(issues.tests.IssueApiTests.test_second_post_for_same_request_returns_409) ... ok
+test_session_post_without_csrf_token_is_rejected 
+(issues.tests.IssueApiTests.test_session_post_without_csrf_token_is_rejected) ... ok
+test_staff_can_issue_with_form_data 
+(issues.tests.IssueApiTests.test_staff_can_issue_with_form_data) ... ok
+test_staff_can_issue_with_json_body 
+(issues.tests.IssueApiTests.test_staff_can_issue_with_json_body) ... ok
+test_unknown_request_returns_404 
+(issues.tests.IssueApiTests.test_unknown_request_returns_404) ... ok
+test_allocation_failure_rolls_back_entire_transaction (issues.tests.IssueBloodServiceTe
+sts.test_allocation_failure_rolls_back_entire_transaction) ... ok
+test_cannot_issue_the_same_request_twice 
+(issues.tests.IssueBloodServiceTests.test_cannot_issue_the_same_request_twice) ... ok
+test_expired_units_are_never_issued 
+(issues.tests.IssueBloodServiceTests.test_expired_units_are_never_issued) ... ok
+test_insufficient_stock_changes_nothing 
+(issues.tests.IssueBloodServiceTests.test_insufficient_stock_changes_nothing) ... ok
+test_issue_marks_request_fulfilled 
+(issues.tests.IssueBloodServiceTests.test_issue_marks_request_fulfilled) ... ok
+test_issue_records_who_issued_it 
+(issues.tests.IssueBloodServiceTests.test_issue_records_who_issued_it) ... ok
+test_issue_reduces_available_stock 
+(issues.tests.IssueBloodServiceTests.test_issue_reduces_available_stock) ... ok
+test_pending_donations_are_not_issued 
+(issues.tests.IssueBloodServiceTests.test_pending_donations_are_not_issued) ... ok
+test_pending_request_cannot_be_issued 
+(issues.tests.IssueBloodServiceTests.test_pending_request_cannot_be_issued) ... ok
+test_rejected_request_cannot_be_issued 
+(issues.tests.IssueBloodServiceTests.test_rejected_request_cannot_be_issued) ... ok
+test_stock_never_goes_negative_across_issues 
+(issues.tests.IssueBloodServiceTests.test_stock_never_goes_negative_across_issues) ... 
+ok
+test_units_come_from_soonest_expiring_batch_first (issues.tests.IssueBloodServiceTests.
+test_units_come_from_soonest_expiring_batch_first) ... ok
+test_anonymous_user_is_redirected_to_login 
+(issues.tests.IssueViewTests.test_anonymous_user_is_redirected_to_login) ... ok
+test_hospital_user_cannot_issue_blood 
+(issues.tests.IssueViewTests.test_hospital_user_cannot_issue_blood) ... ok
+test_hospital_user_cannot_open_issue_page 
+(issues.tests.IssueViewTests.test_hospital_user_cannot_open_issue_page) ... ok
+test_issue_page_shows_batches_after_issue 
+(issues.tests.IssueViewTests.test_issue_page_shows_batches_after_issue) ... ok
+test_opening_issue_page_does_not_issue_blood 
+(issues.tests.IssueViewTests.test_opening_issue_page_does_not_issue_blood) ... ok
+test_post_for_pending_request_shows_error_and_issues_nothing (issues.tests.IssueViewTes
+ts.test_post_for_pending_request_shows_error_and_issues_nothing) ... ok
+test_staff_can_open_issue_page 
+(issues.tests.IssueViewTests.test_staff_can_open_issue_page) ... ok
+test_staff_post_issues_blood_and_redirects 
+(issues.tests.IssueViewTests.test_staff_post_issues_blood_and_redirects) ... ok
+test_allows_issue_when_requested_equals_available 
+(issues.tests.StockValidationTests.test_allows_issue_when_requested_equals_available) 
+... ok
+test_allows_issue_when_stock_is_sufficient 
+(issues.tests.StockValidationTests.test_allows_issue_when_stock_is_sufficient) ... ok
+test_rejects_issue_when_no_stock_is_available 
+(issues.tests.StockValidationTests.test_rejects_issue_when_no_stock_is_available) ... 
+ok
+test_rejects_issue_when_stock_is_insufficient 
+(issues.tests.StockValidationTests.test_rejects_issue_when_stock_is_insufficient) ... 
+ok
+test_rejects_negative_requested_units 
+(issues.tests.StockValidationTests.test_rejects_negative_requested_units) ... ok
+test_rejects_zero_requested_units 
+(issues.tests.StockValidationTests.test_rejects_zero_requested_units) ... ok
+test_administrator_can_open_reports 
+(reports.tests.ReportsAccessTests.test_administrator_can_open_reports) ... ok
+test_anonymous_user_is_redirected_to_login 
+(reports.tests.ReportsAccessTests.test_anonymous_user_is_redirected_to_login) ... ok
+test_blood_bank_staff_can_open_reports 
+(reports.tests.ReportsAccessTests.test_blood_bank_staff_can_open_reports) ... ok
+test_hospital_user_cannot_open_reports 
+(reports.tests.ReportsAccessTests.test_hospital_user_cannot_open_reports) ... ok
+test_group_row_shows_current_stock_after_issue 
+(reports.tests.ReportsContentTests.test_group_row_shows_current_stock_after_issue) ... 
+ok
+test_issue_history_lists_the_issue 
+(reports.tests.ReportsContentTests.test_issue_history_lists_the_issue) ... ok
+test_patient_names_are_not_shown 
+(reports.tests.ReportsContentTests.test_patient_names_are_not_shown) ... ok
+test_request_history_shows_status 
+(reports.tests.ReportsContentTests.test_request_history_shows_status) ... ok
+test_summary_counts_donated_and_issued_units 
+(reports.tests.ReportsContentTests.test_summary_counts_donated_and_issued_units) ... ok
+test_blood_group_filter (reports.tests.ReportsFilterTests.test_blood_group_filter) ... 
+ok
+test_donations_outside_date_range_are_excluded 
+(reports.tests.ReportsFilterTests.test_donations_outside_date_range_are_excluded) ... 
+ok
+test_end_date_before_start_date_shows_error 
+(reports.tests.ReportsFilterTests.test_end_date_before_start_date_shows_error) ... ok
+test_request_status_filter 
+(reports.tests.ReportsFilterTests.test_request_status_filter) ... ok
+test_core_flow_in_each_browser (blood_requests.test_browser_portability.BrowserPortabil
+ityTests.test_core_flow_in_each_browser)
+TC-PORT-01 / NFR-08: the core flow works in every listed browser. ... skipped 'Set 
+BROWSER_TESTS=chrome,msedge,firefox and install playwright to run.'
+test_concurrent_issues_do_not_overspend_stock 
+(issues.tests.ConcurrentIssuanceTests.test_concurrent_issues_do_not_overspend_stock) 
+... skipped 'This concurrency test requires PostgreSQL.'
+
+----------------------------------------------------------------------
+Ran 131 tests in 303.630s
+
+OK (skipped=2)
+Destroying test database for alias 'default' 
+('file:memorydb_default?mode=memory&cache=shared')...
+
+  Applying sessions.0001_initial... OK
+System check identified no issues (0 silenced).
+
+[TC-PERF-01] Availability search response times (s): A+=0.018, A-=0.014, B+=0.016, B-=0.015, AB+=0.014, AB-=0.015, O+=0.015, O-=0.016 | slowest: A+ 0.018s
